@@ -1,6 +1,6 @@
 {
-  "version": 14,
-  "updated_at": "2026-09-29 10:56:28",
+  "version": 15,
+  "updated_at": "2026-09-29 10:56:33",
   "settings": {
     "header_title": "BỘ TIÊU CHÍ ĐOÀN CẤP CƠ SỞ NĂM 2026",
     "use_custom_date": "0",
@@ -519,7 +519,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 2,
@@ -538,7 +538,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 3,
@@ -557,7 +557,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 4,
@@ -576,7 +576,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 5,
@@ -595,7 +595,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 6,
@@ -614,7 +614,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 7,
@@ -633,7 +633,7 @@
       "unit_step_label": "lần vắng",
       "allow_unit_submit": 0,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 8,
@@ -652,7 +652,7 @@
       "unit_step_label": "lần vắng",
       "allow_unit_submit": 0,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 9,
@@ -671,7 +671,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 10,
@@ -690,7 +690,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 11,
@@ -709,7 +709,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 12,
@@ -728,7 +728,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 13,
@@ -747,7 +747,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 14,
@@ -766,7 +766,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 15,
@@ -785,7 +785,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 16,
@@ -804,7 +804,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 17,
@@ -823,7 +823,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 18,
@@ -842,7 +842,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 19,
@@ -861,7 +861,7 @@
       "unit_step_label": "hỗ trợ",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 20,
@@ -880,7 +880,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 21,
@@ -899,7 +899,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 22,
@@ -918,7 +918,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 23,
@@ -937,7 +937,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 24,
@@ -956,7 +956,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 25,
@@ -975,7 +975,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 26,
@@ -994,7 +994,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 27,
@@ -1013,7 +1013,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 28,
@@ -1032,7 +1032,7 @@
       "unit_step_label": "lần",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 29,
@@ -1051,7 +1051,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 30,
@@ -1070,7 +1070,7 @@
       "unit_step_label": "lần vắng",
       "allow_unit_submit": 0,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 31,
@@ -1089,7 +1089,7 @@
       "unit_step_label": "lần vắng",
       "allow_unit_submit": 0,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 32,
@@ -1108,7 +1108,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 33,
@@ -1127,7 +1127,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 34,
@@ -1146,7 +1146,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 35,
@@ -1165,7 +1165,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 36,
@@ -1184,7 +1184,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 37,
@@ -1203,7 +1203,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 38,
@@ -1222,7 +1222,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 39,
@@ -1241,7 +1241,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 40,
@@ -1260,7 +1260,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 41,
@@ -1279,7 +1279,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 42,
@@ -1298,7 +1298,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 43,
@@ -1317,7 +1317,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 44,
@@ -1336,7 +1336,7 @@
       "unit_step_label": "lần",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 45,
@@ -1355,7 +1355,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 46,
@@ -1374,7 +1374,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 47,
@@ -1393,7 +1393,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 48,
@@ -1412,7 +1412,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 49,
@@ -1431,7 +1431,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 50,
@@ -1450,7 +1450,7 @@
       "unit_step_label": "lần",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 51,
@@ -1469,7 +1469,7 @@
       "unit_step_label": "lần",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 52,
@@ -1488,7 +1488,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 53,
@@ -1507,7 +1507,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 54,
@@ -1526,7 +1526,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 55,
@@ -1545,7 +1545,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 56,
@@ -1564,7 +1564,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 57,
@@ -1583,7 +1583,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 58,
@@ -1602,7 +1602,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 59,
@@ -1621,7 +1621,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 60,
@@ -1640,7 +1640,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 61,
@@ -1659,7 +1659,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 62,
@@ -1678,7 +1678,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 63,
@@ -1697,7 +1697,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 64,
@@ -1716,7 +1716,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 65,
@@ -1735,7 +1735,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 66,
@@ -1754,7 +1754,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 67,
@@ -1773,7 +1773,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 68,
@@ -1792,7 +1792,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 69,
@@ -1811,7 +1811,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 70,
@@ -1830,7 +1830,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 71,
@@ -1849,7 +1849,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 72,
@@ -1868,7 +1868,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 73,
@@ -1887,7 +1887,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 74,
@@ -1906,7 +1906,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 75,
@@ -1925,7 +1925,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 76,
@@ -1944,7 +1944,7 @@
       "unit_step_label": "lần vắng",
       "allow_unit_submit": 0,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 77,
@@ -1963,7 +1963,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 78,
@@ -1982,7 +1982,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 79,
@@ -2001,7 +2001,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 80,
@@ -2020,7 +2020,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 81,
@@ -2039,7 +2039,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 82,
@@ -2058,7 +2058,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 83,
@@ -2077,7 +2077,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 84,
@@ -2096,7 +2096,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 85,
@@ -2115,7 +2115,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 86,
@@ -2134,7 +2134,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 87,
@@ -2153,7 +2153,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 88,
@@ -2172,7 +2172,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 89,
@@ -2191,7 +2191,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 90,
@@ -2210,7 +2210,7 @@
       "unit_step_label": "lần vắng",
       "allow_unit_submit": 0,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 91,
@@ -2229,7 +2229,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 92,
@@ -2248,7 +2248,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 93,
@@ -2267,7 +2267,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 94,
@@ -2286,7 +2286,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 95,
@@ -2305,7 +2305,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 1,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 96,
@@ -2324,7 +2324,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 97,
@@ -2343,7 +2343,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 98,
@@ -2362,7 +2362,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 99,
@@ -2381,7 +2381,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 100,
@@ -2400,7 +2400,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 101,
@@ -2419,7 +2419,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 102,
@@ -2438,7 +2438,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 103,
@@ -2457,7 +2457,7 @@
       "unit_step_label": "10 thùng (5 điểm / 10 thùng)",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 104,
@@ -2476,7 +2476,7 @@
       "unit_step_label": "hoạt động",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 105,
@@ -2495,7 +2495,7 @@
       "unit_step_label": "hoạt động",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 106,
@@ -2514,7 +2514,7 @@
       "unit_step_label": "công trình",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 107,
@@ -2533,7 +2533,7 @@
       "unit_step_label": "công trình",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 108,
@@ -2552,7 +2552,7 @@
       "unit_step_label": "hoạt động",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 109,
@@ -2571,7 +2571,7 @@
       "unit_step_label": "hoạt động",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 110,
@@ -2590,7 +2590,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 111,
@@ -2609,7 +2609,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 112,
@@ -2628,7 +2628,7 @@
       "unit_step_label": "hoạt động",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 113,
@@ -2647,7 +2647,7 @@
       "unit_step_label": "hồ sơ",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 114,
@@ -2666,7 +2666,7 @@
       "unit_step_label": "khen thưởng",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 115,
@@ -2685,7 +2685,7 @@
       "unit_step_label": "hoạt động",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 116,
@@ -2704,7 +2704,7 @@
       "unit_step_label": "hoạt động",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 117,
@@ -2723,7 +2723,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 118,
@@ -2742,7 +2742,7 @@
       "unit_step_label": "hoạt động",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 119,
@@ -2761,7 +2761,7 @@
       "unit_step_label": "hoàn thành",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 120,
@@ -2780,7 +2780,7 @@
       "unit_step_label": "nội dung",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 121,
@@ -2799,7 +2799,7 @@
       "unit_step_label": "mô hình",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 122,
@@ -2818,7 +2818,7 @@
       "unit_step_label": "hoạt động",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 123,
@@ -2837,7 +2837,7 @@
       "unit_step_label": "hoạt động",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 124,
@@ -2856,7 +2856,7 @@
       "unit_step_label": "hoạt động",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 125,
@@ -2875,7 +2875,7 @@
       "unit_step_label": "hoạt động",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 126,
@@ -2894,7 +2894,7 @@
       "unit_step_label": "đảng viên",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 127,
@@ -2913,7 +2913,7 @@
       "unit_step_label": "hoạt động",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 128,
@@ -2932,7 +2932,7 @@
       "unit_step_label": "hoạt động",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     },
     {
       "id": 129,
@@ -2951,7 +2951,7 @@
       "unit_step_label": "hoạt động",
       "allow_unit_submit": 1,
       "is_report": 0,
-      "lock_override": 1
+      "lock_override": 0
     }
   ],
   "scores": [
