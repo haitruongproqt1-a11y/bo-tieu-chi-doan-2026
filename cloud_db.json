@@ -1,6 +1,6 @@
 {
-  "version": 15,
-  "updated_at": "2026-09-29 10:56:33",
+  "version": 16,
+  "updated_at": "2026-09-29 10:58:50",
   "settings": {
     "header_title": "BỘ TIÊU CHÍ ĐOÀN CẤP CƠ SỞ NĂM 2026",
     "use_custom_date": "0",
@@ -2954,72 +2954,7 @@
       "lock_override": 0
     }
   ],
-  "scores": [
-    {
-      "unit_id": 13,
-      "criterion_id": 16,
-      "score": null,
-      "quantity": 1,
-      "self_score": 5,
-      "report_content": "",
-      "evidence_link": "",
-      "file_name": "Ky ket chuong trinh.doc",
-      "file_path": "https://raw.githubusercontent.com/haitruongproqt1-a11y/bo-tieu-chi-doan-2026/cloud-data/uploads/DV13_C16_1790653647269_Ky_ket_chuong_trinh.doc",
-      "submitted_at": "2026-09-29 10:47:31",
-      "submitted_date": "2026-09-29",
-      "is_on_time": 0,
-      "updated_by": "unit",
-      "admin_note": ""
-    },
-    {
-      "unit_id": 1,
-      "criterion_id": 1,
-      "score": null,
-      "quantity": 1,
-      "self_score": 6,
-      "report_content": "",
-      "evidence_link": "",
-      "file_name": "",
-      "file_path": "",
-      "submitted_at": "2026-09-29 10:48:38",
-      "submitted_date": "2026-09-29",
-      "is_on_time": 1,
-      "updated_by": "admin",
-      "admin_note": ""
-    },
-    {
-      "unit_id": 1,
-      "criterion_id": 2,
-      "score": null,
-      "quantity": 1,
-      "self_score": 6,
-      "report_content": "",
-      "evidence_link": "",
-      "file_name": "",
-      "file_path": "",
-      "submitted_at": "2026-09-29 10:48:44",
-      "submitted_date": "2026-09-29",
-      "is_on_time": 1,
-      "updated_by": "admin",
-      "admin_note": ""
-    },
-    {
-      "unit_id": 1,
-      "criterion_id": 104,
-      "score": 10,
-      "quantity": 1,
-      "self_score": 10,
-      "report_content": "",
-      "evidence_link": "",
-      "file_name": "Ky ket chuong trinh.doc",
-      "file_path": "https://raw.githubusercontent.com/haitruongproqt1-a11y/bo-tieu-chi-doan-2026/cloud-data/uploads/DV01_C104_1790653898316_Ky_ket_chuong_trinh.doc",
-      "submitted_at": "2026-09-29 10:51:41",
-      "submitted_date": "2026-09-29",
-      "is_on_time": 1,
-      "updated_by": "unit",
-      "admin_note": ""
-    }
-  ],
+  "scores": [],
   "sample_scores": [
     {
       "unit_id": 1,
@@ -14812,40 +14747,7 @@
       "score": 10
     }
   ],
-  "logs": [
-    {
-      "id": 2,
-      "unit_id": 1,
-      "criterion_id": 104,
-      "submitted_at": "2026-09-29 10:51:41",
-      "submitted_date": "2026-09-29",
-      "deadline": "2026-12-31",
-      "is_on_time": 1,
-      "requested_score": 10,
-      "awarded_score": 10,
-      "report_content": "",
-      "evidence_link": "",
-      "file_name": "Ky ket chuong trinh.doc",
-      "file_path": "https://raw.githubusercontent.com/haitruongproqt1-a11y/bo-tieu-chi-doan-2026/cloud-data/uploads/DV01_C104_1790653898316_Ky_ket_chuong_trinh.doc",
-      "status_text": "Đúng hạn (29/09/2026 <= 31/12/2026) - Đã tự động cộng +10 điểm Online!"
-    },
-    {
-      "id": 1,
-      "unit_id": 13,
-      "criterion_id": 16,
-      "submitted_at": "2026-09-29 10:47:31",
-      "submitted_date": "2026-09-29",
-      "deadline": "2026-03-15",
-      "is_on_time": 0,
-      "requested_score": 5,
-      "awarded_score": null,
-      "report_content": "",
-      "evidence_link": "",
-      "file_name": "Ky ket chuong trinh.doc",
-      "file_path": "https://raw.githubusercontent.com/haitruongproqt1-a11y/bo-tieu-chi-doan-2026/cloud-data/uploads/DV13_C16_1790653647269_Ky_ket_chuong_trinh.doc",
-      "status_text": "Quá hạn nộp (29/09/2026 > 15/03/2026) - Không được tự động tính điểm"
-    }
-  ],
+  "logs": [],
   "month_labels": {
     "1": "Tháng 01/2026",
     "2": "Tháng 02/2026",
