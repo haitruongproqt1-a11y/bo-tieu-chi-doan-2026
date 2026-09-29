@@ -1,6 +1,6 @@
 {
-  "version": 3,
-  "updated_at": "2026-09-29 10:48:31",
+  "version": 4,
+  "updated_at": "2026-09-29 10:48:34",
   "settings": {
     "header_title": "BỘ TIÊU CHÍ ĐOÀN CẤP CƠ SỞ NĂM 2026",
     "use_custom_date": "0",
@@ -2982,6 +2982,22 @@
       "file_name": "",
       "file_path": "",
       "submitted_at": "2026-09-29 10:48:31",
+      "submitted_date": "2026-09-29",
+      "is_on_time": 1,
+      "updated_by": "admin",
+      "admin_note": ""
+    },
+    {
+      "unit_id": 1,
+      "criterion_id": 2,
+      "score": 6,
+      "quantity": 1,
+      "self_score": 6,
+      "report_content": "",
+      "evidence_link": "",
+      "file_name": "",
+      "file_path": "",
+      "submitted_at": "2026-09-29 10:48:34",
       "submitted_date": "2026-09-29",
       "is_on_time": 1,
       "updated_by": "admin",
