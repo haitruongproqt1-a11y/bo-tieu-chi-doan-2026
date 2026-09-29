@@ -1,6 +1,6 @@
 {
-  "version": 7,
-  "updated_at": "2026-09-29 10:48:44",
+  "version": 8,
+  "updated_at": "2026-09-29 10:51:41",
   "settings": {
     "header_title": "BỘ TIÊU CHÍ ĐOÀN CẤP CƠ SỞ NĂM 2026",
     "use_custom_date": "0",
@@ -3001,6 +3001,22 @@
       "submitted_date": "2026-09-29",
       "is_on_time": 1,
       "updated_by": "admin",
+      "admin_note": ""
+    },
+    {
+      "unit_id": 1,
+      "criterion_id": 104,
+      "score": 10,
+      "quantity": 1,
+      "self_score": 10,
+      "report_content": "",
+      "evidence_link": "",
+      "file_name": "Ky ket chuong trinh.doc",
+      "file_path": "https://raw.githubusercontent.com/haitruongproqt1-a11y/bo-tieu-chi-doan-2026/cloud-data/uploads/DV01_C104_1790653898316_Ky_ket_chuong_trinh.doc",
+      "submitted_at": "2026-09-29 10:51:41",
+      "submitted_date": "2026-09-29",
+      "is_on_time": 1,
+      "updated_by": "unit",
       "admin_note": ""
     }
   ],
@@ -14797,6 +14813,22 @@
     }
   ],
   "logs": [
+    {
+      "id": 2,
+      "unit_id": 1,
+      "criterion_id": 104,
+      "submitted_at": "2026-09-29 10:51:41",
+      "submitted_date": "2026-09-29",
+      "deadline": "2026-12-31",
+      "is_on_time": 1,
+      "requested_score": 10,
+      "awarded_score": 10,
+      "report_content": "",
+      "evidence_link": "",
+      "file_name": "Ky ket chuong trinh.doc",
+      "file_path": "https://raw.githubusercontent.com/haitruongproqt1-a11y/bo-tieu-chi-doan-2026/cloud-data/uploads/DV01_C104_1790653898316_Ky_ket_chuong_trinh.doc",
+      "status_text": "Đúng hạn (29/09/2026 <= 31/12/2026) - Đã tự động cộng +10 điểm Online!"
+    },
     {
       "id": 1,
       "unit_id": 13,
