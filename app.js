@@ -1240,7 +1240,7 @@ function renderMasterTableTab() {
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   if (isMobile && state.mobileViewMode === 'cards') {
-    return renderMasterMobileCardsView(activeUnits, filteredCriteria, isAdmin, monthPills, headerTitle);
+    return renderMasterMobileCardsView(filteredUnits, filteredCriteria, isAdmin, monthPills, headerTitle);
   }
 
   return `
@@ -4388,3 +4388,171 @@ window.scrollTableHorizontally = function (wrapperId, px) {
     el.scrollBy({ left: px, behavior: 'smooth' });
   }
 };
+
+
+
+// =========================================================================
+// SUPER MOBILE CARD VIEW RENDERER (< 768px)
+// =========================================================================
+function renderMasterMobileCardsView(activeUnits, filteredCriteria, isAdmin, monthPills, headerTitle) {
+  const currentUnits = activeUnits || [];
+  const currentCriteria = filteredCriteria || [];
+
+  return `
+    <div class="mobile-view-toggle-bar">
+      <button class="mobile-toggle-btn active" onclick="setMobileViewMode('cards')">
+        📱 Chế Độ Thẻ (Siêu Rõ & Tiện)
+      </button>
+      <button class="mobile-toggle-btn" onclick="setMobileViewMode('table')">
+        📊 Xem Dạng Bảng Kẻ Ô
+      </button>
+    </div>
+
+    <!-- Filter by Month Pills -->
+    <div style="margin-bottom:10px;">
+      <div style="font-size:12px; font-weight:700; color:#475569; margin-bottom:4px;">📅 Lọc xem theo Tháng / Kỳ:</div>
+      <div class="month-pills" style="display:flex; overflow-x:auto; gap:5px; padding-bottom:6px; -webkit-overflow-scrolling:touch;">
+        ${(monthPills || []).map(p => `
+          <button class="month-pill ${Number(state.monthFilter) === p.val ? 'active' : ''}" onclick="setMonthFilter(${p.val})" style="font-size:11.5px; padding:5px 10px; white-space:nowrap; flex-shrink:0;">
+            ${p.label}
+          </button>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Search Unit -->
+    <div style="margin-bottom:12px; display:flex; gap:6px;">
+      <input
+        type="text"
+        placeholder="🔍 Tìm tên cơ sở Đoàn..."
+        value="${escapeHtml(state.searchQuery || '')}"
+        oninput="onSearchUnitInput(this.value)"
+        style="flex:1; font-size:13px; padding:8px 12px; border:1px solid #cbd5e1; border-radius:8px;"
+      />
+      <select onchange="onSortByChange(this.value)" style="font-size:12px; font-weight:700; padding:6px; border-radius:8px; border:1px solid #cbd5e1; background:#fff;">
+        <option value="order" ${state.sortBy === 'order' ? 'selected' : ''}>Thứ tự</option>
+        <option value="score_desc" ${state.sortBy === 'score_desc' ? 'selected' : ''}>Điểm cao</option>
+      </select>
+    </div>
+
+    <div style="font-size:12px; color:#64748b; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+      <span>Hiển thị <b>${currentUnits.length}</b> đơn vị • <b>${currentCriteria.length}</b> tiêu chí</span>
+      <span style="font-size:11px; color:#0284c7; font-weight:600;">💡 Chạm vào đơn vị để xem chi tiết</span>
+    </div>
+
+    <!-- Units Cards List -->
+    <div class="mobile-units-list">
+      ${currentUnits.map((u, idx) => {
+        const total = getUnitTotalScore(u.id);
+        const isExpanded = state.mobileExpandedUnit === u.id;
+        
+        return `
+          <div class="mobile-unit-card ${isExpanded ? 'expanded' : ''}">
+            <div class="mobile-card-header" onclick="toggleMobileUnitExpand(${u.id})">
+              <div style="flex:1; padding-right:8px;">
+                <div style="display:flex; align-items:center; gap:6px; margin-bottom:3px;">
+                  <span class="badge" style="background:#0284c7; color:#fff; font-size:10.5px; font-weight:700; padding:2px 6px;">#${idx + 1}</span>
+                  <span style="font-size:11px; color:#64748b; font-weight:600;">[${escapeHtml(u.unit_code || 'DV' + u.id)}]</span>
+                </div>
+                <div class="mobile-card-title">${escapeHtml(u.unit_name)}</div>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                <div class="mobile-card-score-badge">
+                  ⭐ ${total} đ
+                </div>
+                <span style="font-size:11px; color:#0052cc; font-weight:700;">
+                  ${isExpanded ? 'Thu gọn ▲' : 'Chi tiết ▼'}
+                </span>
+              </div>
+            </div>
+
+            ${isExpanded ? `
+              <div class="mobile-card-body">
+                <!-- Monthly Score Summary chips -->
+                <div style="margin-bottom:12px; background:#eff6ff; padding:8px 10px; border-radius:8px; border:1px solid #bfdbfe;">
+                  <div style="font-size:11px; font-weight:700; color:#1e40af; margin-bottom:4px;">📊 ĐIỂM TỔNG HỢP CÁC KỲ:</div>
+                  <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                    ${getRankingMonthGroups().map(mg => {
+                      const sc = getUnitMonthScore(u.id, mg.key);
+                      return `
+                        <span style="font-size:11px; background:#fff; border:1px solid #93c5fd; padding:2px 6px; border-radius:4px; font-weight:600;">
+                          ${mg.label}: <b style="color:${sc > 0 ? '#16a34a' : '#64748b'};">${sc}đ</b>
+                        </span>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+
+                <!-- Criteria Detail List -->
+                <div style="font-size:12px; font-weight:700; color:#334155; margin-bottom:8px;">
+                  📋 Danh sách tiêu chí (${currentCriteria.length} mục):
+                </div>
+
+                ${currentCriteria.map(c => {
+                  const sc = getScoreObj(u.id, c.id);
+                  const hasScore = sc && sc.score !== null && sc.score !== '';
+                  const scoreVal = hasScore ? Number(sc.score) : null;
+                  const open = isCriterionOpen(c);
+                  const hasProof = sc && (sc.file_path || sc.evidence_link || sc.report_content);
+
+                  return `
+                    <div class="mobile-crit-item ${hasScore ? 'has-score' : ''}">
+                      <div class="mobile-crit-header">
+                        <div style="flex:1;">
+                          <div style="font-size:10.5px; font-weight:700; color:#0284c7; text-transform:uppercase;">
+                            ${escapeHtml(c.col_label)} • ${escapeHtml(c.month_label)}
+                          </div>
+                          <div class="mobile-crit-title">${escapeHtml(c.title)}</div>
+                          <div style="font-size:10.5px; color:#64748b; margin-top:2px;">
+                            🟢 Mở: ${formatShortDateVN(c.start_date || '2026-01-01')} | ⏰ Hạn: ${formatShortDateVN(c.deadline)} (Tối đa: ${c.max_score}đ)
+                          </div>
+                        </div>
+                        <div style="text-align:right;">
+                          ${hasScore ? `
+                            <div class="mobile-crit-score">+${scoreVal}đ</div>
+                          ` : `
+                            <div style="font-size:12px; color:#94a3b8; font-weight:600;">Chưa điểm</div>
+                          `}
+                        </div>
+                      </div>
+
+                      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:6px; border-top:1px dashed #e2e8f0; flex-wrap:wrap; gap:6px;">
+                        <div>
+                          ${hasProof ? `
+                            <span style="font-size:11px; color:#16a34a; font-weight:700; background:#dcfce7; padding:2px 6px; border-radius:4px;">
+                              📎 Có minh chứng / Báo cáo
+                            </span>
+                          ` : `
+                            <span style="font-size:11px; color:#94a3b8;">Chưa nộp file</span>
+                          `}
+                        </div>
+
+                        <div style="display:flex; gap:6px;">
+                          ${hasProof || hasScore ? `
+                            <button class="btn btn-sm btn-outline" onclick="openSubmissionDetailModal(${u.id}, ${c.id})" style="font-size:11.5px; padding:3px 8px; font-weight:700;">
+                              🔍 Xem Chi Tiết
+                            </button>
+                          ` : ''}
+
+                          ${isAdmin ? `
+                            <button class="btn btn-sm btn-primary" onclick="openSubmissionDetailModal(${u.id}, ${c.id})" style="font-size:11.5px; padding:3px 8px; font-weight:700; background:#0052cc;">
+                              ✏️ Chấm Điểm
+                            </button>
+                          ` : (u.id === (state.user && state.user.id) ? `
+                            <button class="btn btn-sm btn-success" onclick="openUnitSubmitModal(${c.id}, ${u.id})" style="font-size:11.5px; padding:3px 8px; font-weight:700;">
+                              📤 Nộp Báo Cáo
+                            </button>
+                          ` : '')}
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
