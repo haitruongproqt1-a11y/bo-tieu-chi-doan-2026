@@ -29,7 +29,9 @@ function _getCloudToken() {
 
 const state = {
   mobileViewMode: 'cards', // 'cards' | 'table'
+  mobileReportsViewMode: 'cards', // 'cards' | 'table'
   mobileExpandedUnit: null,
+  mobileExpandedReportUnit: null,
   mobileSearch: '',
   user: null,
   settings: {},
@@ -2371,6 +2373,7 @@ window.executeBatchFillColumn = async function (criterionId) {
    TAB 2 (ADMIN): THEO DÕI BÁO CÁO THÁNG & NHẬT KÝ NỘP MINH CHỨNG
    ========================================================================= */
 function renderAdminReportsTab() {
+  const isAdmin = state.user && state.user.role === 'admin';
   const activeUnits = state.units.filter((u) => Number(u.is_active) === 1);
   const reportCriteria = state.criteria.filter((c) => Number(c.is_report) === 1);
 
@@ -2379,7 +2382,7 @@ function renderAdminReportsTab() {
     return Number(l.unit_id) === Number(state.logFilterUnit);
   });
 
-  const writtenList = state.writtenReports || [];
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   return `
     <!-- Banner Cong khai Bao cao -->
@@ -2388,6 +2391,17 @@ function renderAdminReportsTab() {
         🌐 <b>Tính năng Công Khai & Minh Bạch Toàn Khối:</b> Tất cả các cơ sở Đoàn đều có thể theo dõi tiến độ nộp báo cáo và xem hồ sơ minh chứng của các đơn vị.
       </div>
     </div>
+
+    ${isMobile ? `
+      <div class="mobile-view-toggle-bar">
+        <button class="mobile-toggle-btn ${state.mobileReportsViewMode === 'cards' ? 'active' : ''}" onclick="setMobileReportsViewMode('cards')">
+          📱 Chế Độ Thẻ (Siêu Rõ & Tiện)
+        </button>
+        <button class="mobile-toggle-btn ${state.mobileReportsViewMode === 'table' ? 'active' : ''}" onclick="setMobileReportsViewMode('table')">
+          📊 Chế Độ Bảng Kẻ Ô
+        </button>
+      </div>
+    ` : ''}
 
     <!-- MA TRẬN THEO DÕI NỘP BÁO CÁO ĐỊNH KỲ -->
     <div class="panel">
@@ -2401,72 +2415,179 @@ function renderAdminReportsTab() {
           <span class="badge badge-danger">❌ Chưa nộp</span>
         </div>
       </div>
-      <div class="mobile-scroll-hint">👉 Vuốt ngón tay sang trái / phải để xem các kỳ báo cáo 👈</div>
-      <div class="table-scroll-controls">
-        <button class="btn-scroll-step" onclick="scrollTableHorizontally('reports-spreadsheet-wrapper', -250)">◀ Cuộn Sang Trái</button>
-        <button class="btn-scroll-step" onclick="scrollTableHorizontally('reports-spreadsheet-wrapper', 250)">Cuộn Sang Phải ▶</button>
-      </div>
-      <div class="spreadsheet-wrapper" id="reports-spreadsheet-wrapper" style="max-height: 450px;">
-        <table class="master-table">
-          <thead>
-            <tr class="row-titles">
-              <th class="sticky-col-stt" style="top:0; height:72px;">STT</th>
-              <th class="sticky-col-unit" style="top:0; height:72px;">ĐƠN VỊ</th>
-              <th class="sticky-col-total" style="top:0; height:72px;">Đúng hạn</th>
-              ${reportCriteria
-                .map(
-                  (c) => `
-                <th style="top:0; height:72px; min-width:115px;">
-                  <div>${escapeHtml(c.title)}</div>
-                  <div style="font-size:10px; color:#15803d; margin-top:3px;">Hạn: ${formatShortDateVN(c.deadline)} (${c.max_score}đ)</div>
-                </th>
-              `
-                )
-                .join('')}
-            </tr>
-          </thead>
-          <tbody>
-            ${activeUnits
-              .map((u, idx) => {
-                let doneCount = 0;
-                const cells = reportCriteria
-                  .map((c) => {
-                    const sc = getScoreObj(u.id, c.id);
-                    const hasScore = sc && sc.score !== null && sc.score !== '' && Number(sc.score) > 0;
-                    if (hasScore) doneCount++;
-                    const isLate = sc && Number(sc.is_on_time) === 0 && !hasScore;
 
-                    return `
-                    <td style="text-align:center; cursor:pointer;" onclick="${
-                      sc ? `openSubmissionDetailModal(${u.id}, ${c.id})` : `openUnitSubmitModal(${c.id}, ${u.id})`
-                    }">
-                      ${
-                        hasScore
-                          ? `<span class="badge badge-success">+${formatScore(sc.score)}đ</span>`
-                          : isLate
-                          ? `<span class="badge badge-warning">Trễ hạn</span>`
-                          : `<span style="color:#cbd5e1;">—</span>`
-                      }
-                    </td>
-                  `;
-                  })
-                  .join('');
+      ${isMobile && state.mobileReportsViewMode === 'cards' ? `
+        <!-- MOBILE CARD VIEW CHO BÁO CÁO -->
+        <div style="padding: 10px;">
+          <div style="font-size: 11.5px; color: #64748b; margin-bottom: 10px; display:flex; justify-content:space-between;">
+            <span>Hiển thị <b>${activeUnits.length}</b> đơn vị (${reportCriteria.length} kỳ báo cáo)</span>
+            <span style="color:#0284c7; font-weight:600;">💡 Chạm vào để xem chi tiết</span>
+          </div>
+          <div class="mobile-units-list">
+            ${activeUnits.map((u, idx) => {
+              let doneCount = 0;
+              const critStatusList = reportCriteria.map(c => {
+                const sc = getScoreObj(u.id, c.id);
+                const hasScore = sc && sc.score !== null && sc.score !== '' && Number(sc.score) > 0;
+                if (hasScore) doneCount++;
+                const isLate = sc && Number(sc.is_on_time) === 0 && !hasScore;
+                return { c, sc, hasScore, isLate };
+              });
+              const pct = reportCriteria.length > 0 ? Math.round((doneCount / reportCriteria.length) * 100) : 0;
+              const isExpanded = state.mobileExpandedReportUnit === u.id;
 
-                return `
-                <tr>
-                  <td class="sticky-col-stt">${idx + 1}</td>
-                  <td class="sticky-col-unit">${escapeHtml(u.unit_name)}</td>
-                  <td class="sticky-col-total">${doneCount}/${reportCriteria.length}</td>
-                  ${cells}
-                </tr>
+              return `
+                <div class="mobile-unit-card ${isExpanded ? 'expanded' : ''}">
+                  <div class="mobile-card-header" onclick="toggleMobileReportUnitExpand(${u.id})">
+                    <div style="flex:1; padding-right:8px;">
+                      <div style="display:flex; align-items:center; gap:6px; margin-bottom:3px;">
+                        <span class="badge" style="background:#0284c7; color:#fff; font-size:10.5px; font-weight:700; padding:2px 6px;">#${idx + 1}</span>
+                        <span style="font-size:11px; color:#64748b; font-weight:600;">[${escapeHtml(u.unit_code || 'DV' + u.id)}]</span>
+                      </div>
+                      <div class="mobile-card-title">${escapeHtml(u.unit_name)}</div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                      <div class="mobile-card-score-badge" style="background:${doneCount === reportCriteria.length ? '#dcfce7' : '#eff6ff'}; color:${doneCount === reportCriteria.length ? '#15803d' : '#1e40af'}; border-color:${doneCount === reportCriteria.length ? '#86efac' : '#bfdbfe'};">
+                        📋 ${doneCount}/${reportCriteria.length}
+                      </div>
+                      <span style="font-size:11px; color:#0052cc; font-weight:700;">
+                        ${isExpanded ? 'Thu gọn ▲' : 'Chi tiết ▼'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Progress bar -->
+                  <div style="padding: 0 12px 8px 12px;">
+                    <div style="background:#e2e8f0; height:6px; border-radius:3px; overflow:hidden;">
+                      <div style="background:${pct === 100 ? '#16a34a' : pct > 50 ? '#0284c7' : '#f59e0b'}; height:100%; width:${pct}%;"></div>
+                    </div>
+                    <div style="font-size:10.5px; color:#64748b; margin-top:2px; text-align:right;">
+                      Đạt ${pct}% tiến độ
+                    </div>
+                  </div>
+
+                  ${isExpanded ? `
+                    <div class="mobile-card-body">
+                      <div style="font-size:12px; font-weight:700; color:#334155; margin-bottom:8px;">
+                        Danh sách các kỳ báo cáo:
+                      </div>
+                      ${critStatusList.map(({ c, sc, hasScore, isLate }) => `
+                        <div class="mobile-crit-item ${hasScore ? 'has-score' : ''}">
+                          <div class="mobile-crit-header">
+                            <div style="flex:1;">
+                              <div style="font-size:10.5px; font-weight:700; color:#0284c7; text-transform:uppercase;">
+                                ${escapeHtml(c.col_label || '')} • ${escapeHtml(c.month_label || '')}
+                              </div>
+                              <div class="mobile-crit-title">${escapeHtml(c.title)}</div>
+                              <div style="font-size:10.5px; color:#64748b; margin-top:2px;">
+                                ⏰ Hạn nộp: ${formatShortDateVN(c.deadline)} (Tối đa: ${c.max_score}đ)
+                              </div>
+                            </div>
+                            <div style="text-align:right;">
+                              ${
+                                hasScore
+                                  ? `<span class="badge badge-success">+${formatScore(sc.score)}đ</span>`
+                                  : isLate
+                                  ? `<span class="badge badge-warning">Trễ hạn</span>`
+                                  : `<span class="badge badge-danger">Chưa nộp</span>`
+                              }
+                            </div>
+                          </div>
+                          <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:8px; padding-top:6px; border-top:1px dashed #e2e8f0;">
+                            ${sc ? `
+                              <button class="btn btn-sm btn-outline" onclick="openSubmissionDetailModal(${u.id}, ${c.id})" style="font-size:11.5px; padding:3px 8px;">
+                                🔍 Xem Hồ Sơ
+                              </button>
+                            ` : ''}
+                            ${isAdmin ? `
+                              <button class="btn btn-sm btn-primary" onclick="openSubmissionDetailModal(${u.id}, ${c.id})" style="font-size:11.5px; padding:3px 8px; background:#0052cc;">
+                                ✏️ Chấm Điểm
+                              </button>
+                            ` : (u.id === (state.user && state.user.id) ? `
+                              <button class="btn btn-sm btn-success" onclick="openUnitSubmitModal(${c.id}, ${u.id})" style="font-size:11.5px; padding:3px 8px;">
+                                📤 Nộp Báo Cáo
+                              </button>
+                            ` : '')}
+                          </div>
+                        </div>
+                      `).join('')}
+                    </div>
+                  ` : ''}
+                </div>
               `;
-              })
-              .join('')}
-          </tbody>
-        </table>
-      </div>
+            }).join('')}
+          </div>
+        </div>
+      ` : `
+        <!-- TABLE VIEW -->
+        <div class="mobile-scroll-hint">👉 Vuốt ngón tay sang trái / phải để xem các kỳ báo cáo 👈</div>
+        <div class="table-scroll-controls">
+          <button class="btn-scroll-step" onclick="scrollTableHorizontally('reports-spreadsheet-wrapper', -250)">◀ Cuộn Sang Trái</button>
+          <button class="btn-scroll-step" onclick="scrollTableHorizontally('reports-spreadsheet-wrapper', 250)">Cuộn Sang Phải ▶</button>
+        </div>
+        <div class="spreadsheet-wrapper" id="reports-spreadsheet-wrapper" style="max-height: 450px;">
+          <table class="master-table">
+            <thead>
+              <tr class="row-titles">
+                <th class="sticky-col-stt">STT</th>
+                <th class="sticky-col-unit">ĐƠN VỊ</th>
+                <th class="sticky-col-total">Đúng hạn</th>
+                ${reportCriteria
+                  .map(
+                    (c) => `
+                  <th style="min-width:115px;">
+                    <div>${escapeHtml(c.title)}</div>
+                    <div style="font-size:10px; color:#15803d; margin-top:3px;">Hạn: ${formatShortDateVN(c.deadline)} (${c.max_score}đ)</div>
+                  </th>
+                `
+                  )
+                  .join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${activeUnits
+                .map((u, idx) => {
+                  let doneCount = 0;
+                  const cells = reportCriteria
+                    .map((c) => {
+                      const sc = getScoreObj(u.id, c.id);
+                      const hasScore = sc && sc.score !== null && sc.score !== '' && Number(sc.score) > 0;
+                      if (hasScore) doneCount++;
+                      const isLate = sc && Number(sc.is_on_time) === 0 && !hasScore;
+
+                      return `
+                      <td style="text-align:center; cursor:pointer;" onclick="${
+                        sc ? `openSubmissionDetailModal(${u.id}, ${c.id})` : `openUnitSubmitModal(${c.id}, ${u.id})`
+                      }">
+                        ${
+                          hasScore
+                            ? `<span class="badge badge-success">+${formatScore(sc.score)}đ</span>`
+                            : isLate
+                            ? `<span class="badge badge-warning">Trễ hạn</span>`
+                            : `<span style="color:#cbd5e1;">—</span>`
+                        }
+                      </td>
+                    `;
+                    })
+                    .join('');
+
+                  return `
+                  <tr>
+                    <td class="sticky-col-stt">${idx + 1}</td>
+                    <td class="sticky-col-unit">${escapeHtml(u.unit_name)}</td>
+                    <td class="sticky-col-total">${doneCount}/${reportCriteria.length}</td>
+                    ${cells}
+                  </tr>
+                `;
+                })
+                .join('')}
+            </tbody>
+          </table>
+        </div>
+      `}
     </div>
 
+    <!-- NHẬT KÝ ĐƠN VỊ NỘP BÁO CÁO -->
     <div class="panel">
       <div class="panel-header">
         <div class="panel-title">🕒 NHẬT KÝ ĐƠN VỊ NỘP BÁO CÁO & MINH CHỨNG GẦN ĐÂY</div>
@@ -2482,66 +2603,95 @@ function renderAdminReportsTab() {
           </select>
         </div>
       </div>
-      <div class="mobile-scroll-hint" style="margin:8px 12px 0 12px;">👉 Vuốt ngón tay sang trái / phải để xem điểm các tháng 👈</div>
-      <div class="panel-body" style="padding:0; overflow-x:auto; -webkit-overflow-scrolling:touch; touch-action:pan-x pan-y;">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Thời gian nộp</th>
-              <th>Đơn vị</th>
-              <th>Tiêu chí</th>
-              <th>Ngày nộp / Hạn chót</th>
-              <th>Trạng thái</th>
-              <th>Điểm cộng</th>
-              <th>Nội dung & File đính kèm</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${
-              filteredLogs.length === 0
-                ? `<tr><td colspan="7" style="text-align:center; padding:24px; color:#64748b;">Chưa có lượt nộp báo cáo nào được ghi nhận.</td></tr>`
-                : filteredLogs
-                    .map(
-                      (l) => `
-                  <tr>
-                    <td style="white-space:nowrap; font-size:12px;">${escapeHtml(l.submitted_at)}</td>
-                    <td style="font-weight:600;">${escapeHtml(l.unit_name)}</td>
-                    <td><b>${escapeHtml(l.col_label)}:</b> ${escapeHtml(l.criterion_title)}</td>
-                    <td style="white-space:nowrap; font-size:12px;">
-                      Nộp: <b>${formatDateVN(l.submitted_date)}</b><br/>
-                      Hạn: ${formatDateVN(l.deadline)}
-                    </td>
-                    <td>
-                      ${
-                        Number(l.is_on_time) === 1
-                          ? '<span class="badge badge-success">Đúng hạn</span>'
-                          : '<span class="badge badge-warning">Quá hạn</span>'
-                      }
-                    </td>
-                    <td style="text-align:center; font-weight:700; color:#15803d;">
-                      ${l.awarded_score !== null && l.awarded_score !== undefined ? '+' + formatScore(l.awarded_score) + 'đ' : '0đ'}
-                    </td>
-                    <td>
-                      <div>${escapeHtml(l.report_content || '')}</div>
-                      ${
-                        l.evidence_link
-                          ? `<a href="${escapeHtml(l.evidence_link)}" target="_blank" style="font-size:12px;">🔗 Link minh chứng</a> `
-                          : ''
-                      }
-                      ${
-                        l.file_path
-                          ? `<a href="${escapeHtml(l.file_path)}" target="_blank" style="font-size:12px; font-weight:700;">📎 ${escapeHtml(l.file_name)}</a>`
-                          : ''
-                      }
-                    </td>
-                  </tr>
-                `
-                    )
-                    .join('')
-            }
-          </tbody>
-        </table>
-      </div>
+
+      ${isMobile ? `
+        <!-- MOBILE LOGS LIST VIEW -->
+        <div style="padding: 10px;">
+          ${filteredLogs.length === 0 ? `
+            <div style="text-align:center; padding:24px; color:#64748b; font-size:13px;">Chưa có lượt nộp báo cáo nào được ghi nhận.</div>
+          ` : filteredLogs.map(l => `
+            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;">
+                <div style="font-weight:700; color:#0f172a; font-size:13px;">${escapeHtml(l.unit_name)}</div>
+                <div>${Number(l.is_on_time) === 1 ? '<span class="badge badge-success">Đúng hạn</span>' : '<span class="badge badge-warning">Quá hạn</span>'}</div>
+              </div>
+              <div style="font-size:12px; color:#0284c7; font-weight:600; margin-bottom:4px;">
+                📌 ${escapeHtml(l.col_label || '')}: ${escapeHtml(l.criterion_title || '')}
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:11px; color:#64748b; margin-bottom:6px;">
+                <span>🕒 Nộp: <b>${formatDateVN(l.submitted_date)}</b> (${escapeHtml(l.submitted_at || '')})</span>
+                <span style="font-weight:700; color:#15803d; font-size:12px;">${l.awarded_score !== null && l.awarded_score !== undefined ? '+' + formatScore(l.awarded_score) + 'đ' : '0đ'}</span>
+              </div>
+              ${l.report_content ? `<div style="font-size:11.5px; color:#334155; background:#f8fafc; padding:6px 8px; border-radius:4px; margin-bottom:6px; border:1px solid #f1f5f9;">${escapeHtml(l.report_content)}</div>` : ''}
+              <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                ${l.evidence_link ? `<a href="${escapeHtml(l.evidence_link)}" target="_blank" class="btn btn-sm btn-outline" style="font-size:11px; padding:3px 8px;">🔗 Link minh chứng</a>` : ''}
+                ${l.file_path ? `<a href="${escapeHtml(l.file_path)}" target="_blank" class="btn btn-sm btn-primary" style="font-size:11px; padding:3px 8px; background:#0284c7;">📎 ${escapeHtml(l.file_name || 'Xem file')}</a>` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      ` : `
+        <!-- DESKTOP LOGS TABLE VIEW -->
+        <div class="panel-body" style="padding:0; overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Thời gian nộp</th>
+                <th>Đơn vị</th>
+                <th>Tiêu chí</th>
+                <th>Ngày nộp / Hạn chót</th>
+                <th>Trạng thái</th>
+                <th>Điểm cộng</th>
+                <th>Nội dung & File đính kèm</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${
+                filteredLogs.length === 0
+                  ? `<tr><td colspan="7" style="text-align:center; padding:24px; color:#64748b;">Chưa có lượt nộp báo cáo nào được ghi nhận.</td></tr>`
+                  : filteredLogs
+                      .map(
+                        (l) => `
+                    <tr>
+                      <td style="white-space:nowrap; font-size:12px;">${escapeHtml(l.submitted_at)}</td>
+                      <td style="font-weight:600;">${escapeHtml(l.unit_name)}</td>
+                      <td><b>${escapeHtml(l.col_label)}:</b> ${escapeHtml(l.criterion_title)}</td>
+                      <td style="white-space:nowrap; font-size:12px;">
+                        Nộp: <b>${formatDateVN(l.submitted_date)}</b><br/>
+                        Hạn: ${formatDateVN(l.deadline)}
+                      </td>
+                      <td>
+                        ${
+                          Number(l.is_on_time) === 1
+                            ? '<span class="badge badge-success">Đúng hạn</span>'
+                            : '<span class="badge badge-warning">Quá hạn</span>'
+                        }
+                      </td>
+                      <td style="text-align:center; font-weight:700; color:#15803d;">
+                        ${l.awarded_score !== null && l.awarded_score !== undefined ? '+' + formatScore(l.awarded_score) + 'đ' : '0đ'}
+                      </td>
+                      <td>
+                        <div>${escapeHtml(l.report_content || '')}</div>
+                        ${
+                          l.evidence_link
+                            ? `<a href="${escapeHtml(l.evidence_link)}" target="_blank" style="font-size:12px;">🔗 Link minh chứng</a> `
+                            : ''
+                        }
+                        ${
+                          l.file_path
+                            ? `<a href="${escapeHtml(l.file_path)}" target="_blank" style="font-size:12px; font-weight:700;">📎 ${escapeHtml(l.file_name)}</a>`
+                            : ''
+                        }
+                      </td>
+                    </tr>
+                  `
+                      )
+                      .join('')
+              }
+            </tbody>
+          </table>
+        </div>
+      `}
     </div>
   `;
 }
@@ -4373,11 +4523,25 @@ window.setMobileViewMode = function (mode) {
   renderApp();
 };
 
+window.setMobileReportsViewMode = function (mode) {
+  state.mobileReportsViewMode = mode;
+  renderApp();
+};
+
 window.toggleMobileUnitExpand = function (unitId) {
   if (state.mobileExpandedUnit === unitId) {
     state.mobileExpandedUnit = null;
   } else {
     state.mobileExpandedUnit = unitId;
+  }
+  renderApp();
+};
+
+window.toggleMobileReportUnitExpand = function (unitId) {
+  if (state.mobileExpandedReportUnit === unitId) {
+    state.mobileExpandedReportUnit = null;
+  } else {
+    state.mobileExpandedReportUnit = unitId;
   }
   renderApp();
 };
