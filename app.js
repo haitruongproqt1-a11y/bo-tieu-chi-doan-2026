@@ -1264,6 +1264,7 @@ function renderMasterTableTab() {
         </div>
       </div>
 
+      <div class="mobile-scroll-hint">👉 Vuốt ngón tay sang trái / phải để xem 131 cột điểm tiêu chí 👈</div>
       <div class="spreadsheet-wrapper" id="master-spreadsheet-wrapper">
         <table class="master-table">
           <thead>
@@ -2378,6 +2379,7 @@ function renderAdminReportsTab() {
           <span class="badge badge-danger">❌ Chưa nộp</span>
         </div>
       </div>
+      <div class="mobile-scroll-hint">👉 Vuốt ngón tay sang trái / phải để xem các kỳ báo cáo 👈</div>
       <div class="spreadsheet-wrapper" style="max-height: 450px;">
         <table class="master-table">
           <thead>
@@ -2454,7 +2456,8 @@ function renderAdminReportsTab() {
           </select>
         </div>
       </div>
-      <div class="panel-body" style="padding:0; overflow-x:auto;">
+      <div class="mobile-scroll-hint" style="margin:8px 12px 0 12px;">👉 Vuốt ngón tay sang trái / phải để xem điểm các tháng 👈</div>
+      <div class="panel-body" style="padding:0; overflow-x:auto; -webkit-overflow-scrolling:touch; touch-action:pan-x pan-y;">
         <table class="data-table">
           <thead>
             <tr>
