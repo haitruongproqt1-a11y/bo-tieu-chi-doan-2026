@@ -179,15 +179,66 @@ async function fetchCloudDB() {
   return { sha: meta.sha, db };
 }
 
+const DEFAULT_GDRIVE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxHqujVkeaWAjc80cxOZbuRMQVZFgrL9WoHIT9t-8F-F5lYvRM-QOnEM6wMyHLWQ34iQw/exec';
+
+function getGoogleDriveScriptUrl() {
+  if (state.settings && state.settings.gdrive_script_url && state.settings.gdrive_script_url.trim()) {
+    return state.settings.gdrive_script_url.trim();
+  }
+  return DEFAULT_GDRIVE_SCRIPT_URL;
+}
+
 async function uploadFileToCloud(fileDataB64, origName, unitId, critId) {
   if (!fileDataB64 || !origName) return { fileName: '', fileUrl: '' };
+
+  const unit = (state.units || []).find((u) => u.id === unitId);
+  const crit = (state.criteria || []).find((c) => c.id === critId);
+
+  const unitCode = unit ? `DV${String(unit.id).padStart(2, '0')}` : `DV${unitId}`;
+  const unitName = unit ? unit.name : `Đơn vị ${unitId}`;
+  const criterionTitle = crit ? (crit.title || 'Tiêu chí') : 'Tiêu chí';
+  const colLabel = crit ? (crit.col_label || `Cột ${crit.id}`) : 'Cột';
+  const monthLabel = crit ? (crit.month_label || (crit.month_group ? `Tháng ${crit.month_group}` : 'Chung')) : 'Chung';
+
+  const gdriveUrl = getGoogleDriveScriptUrl();
+  if (gdriveUrl) {
+    try {
+      showToast('Đang tự động lưu file vào Google Drive...', 'info');
+      const payload = {
+        unitCode,
+        unitName,
+        monthLabel,
+        colLabel,
+        criterionTitle,
+        fileName: origName,
+        fileData: fileDataB64,
+      };
+      const res = await fetch(gdriveUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+        redirect: 'follow',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.status === 'success' && data.fileUrl) {
+          showToast('Đã lưu file thành công vào Google Drive!', 'success');
+          return { fileName: origName, fileUrl: data.fileUrl };
+        }
+      }
+    } catch (gErr) {
+      console.warn('Lỗi tải Google Drive, đang chuyển sang tải dự phòng GitHub:', gErr);
+    }
+  }
+
+  // Dự phòng: Tải lên GitHub repository nếu Google Drive gặp sự cố
   let rawB64 = fileDataB64;
   if (rawB64.includes(',') && rawB64.startsWith('data:')) {
     rawB64 = rawB64.split(',', 2)[1];
   }
   const safeName = origName.replace(/[^a-zA-Z0-9._-]/g, '_');
   const ts = Date.now();
-  const savedName = `DV${String(unitId).padStart(2, '0')}_C${critId}_${ts}_${safeName}`;
+  const savedName = `${unitCode}_C${critId}_${ts}_${safeName}`;
   const apiUrl = `https://api.github.com/repos/${CLOUD_OWNER}/${CLOUD_REPO}/contents/uploads/${savedName}`;
 
   const res = await fetch(apiUrl, {
@@ -3086,6 +3137,14 @@ window.openDateSettingsModal = function () {
             <label>Chọn ngày hệ thống giả lập (VD chọn 2026-01-15 để nộp đúng hạn các mục Tháng 1):</label>
             <input type="date" id="set-custom-date" value="${escapeHtml(customDate)}" />
           </div>
+
+          <div class="form-group" style="margin-top:16px; border-top:1px dashed #cbd5e1; padding-top:12px;">
+            <label style="font-weight:700; color:#1e3a8a;">📁 Đường Dẫn Tự Động Lưu File Lên Google Drive (Apps Script Web App):</label>
+            <input type="text" id="set-gdrive-url" value="${escapeHtml(state.settings.gdrive_script_url || DEFAULT_GDRIVE_SCRIPT_URL)}" placeholder="https://script.google.com/macros/s/.../exec" style="font-size:12px; font-family:monospace;" />
+            <div style="font-size:11px; color:#64748b; margin-top:4px;">
+              Tất cả file minh chứng nộp của 40 cơ sở Đoàn sẽ tự động tạo thư mục và lưu vào Google Drive của bạn (Thư mục gốc: <b>HỒ SƠ BÁO CÁO ĐOÀN 2026</b>).
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-outline" onclick="closeModal()">Đóng</button>
@@ -3100,11 +3159,13 @@ window.saveDateSettings = async function () {
   const strict = document.getElementById('set-strict-mode').value;
   const useCustom = document.getElementById('set-use-custom').value;
   const customDate = document.getElementById('set-custom-date').value;
+  const gdriveUrl = document.getElementById('set-gdrive-url') ? document.getElementById('set-gdrive-url').value.trim() : '';
   const res = await mutateCloudDB((db) => {
     db.settings = db.settings || {};
     db.settings.strict_deadline = strict;
     db.settings.use_custom_date = useCustom;
     db.settings.custom_date = customDate;
+    db.settings.gdrive_script_url = gdriveUrl;
   }, 'Update date settings');
   if (res.ok) {
     closeModal();
