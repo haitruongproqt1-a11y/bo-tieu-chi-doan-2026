@@ -364,11 +364,16 @@ textarea:focus {
 /* THE 131-COLUMN MASTER SPREADSHEET TABLE */
 .spreadsheet-wrapper {
   width: 100%;
-  max-height: calc(100vh - 250px);
-  overflow: auto;
+  max-height: calc(100vh - 220px);
+  overflow-x: auto !important;
+  overflow-y: auto !important;
   position: relative;
   border: 1px solid #94a3b8;
   background: #fff;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-x pan-y !important;
+  overscroll-behavior-x: contain !important;
+  scroll-behavior: smooth;
 }
 
 .master-table {
@@ -925,4 +930,132 @@ textarea:focus {
 .cell-score:hover .score-has-note-dot {
   opacity: 1;
   transform: scale(1.15);
+}
+
+
+/* =========================================================================
+   MOBILE RESPONSIVENESS & SMOOTH TOUCH SWIPING ENHANCEMENTS (< 768px)
+   ========================================================================= */
+@media (max-width: 768px) {
+  /* Header compact on mobile */
+  .app-header {
+    padding: 8px 10px !important;
+    gap: 8px !important;
+  }
+  .app-title h1 {
+    font-size: 13.5px !important;
+    line-height: 1.25 !important;
+  }
+  .header-actions {
+    gap: 4px !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+  }
+  .header-actions .btn {
+    padding: 4px 7px !important;
+    font-size: 11px !important;
+  }
+
+  /* Smooth swipeable spreadsheet wrapper */
+  .spreadsheet-wrapper {
+    max-height: 60vh !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-x pan-y !important;
+    border-radius: 6px;
+  }
+
+  /* CRITICAL MOBILE FIX: Shrink sticky columns so 60% of mobile screen is open for swiping */
+  .master-table .sticky-col-stt {
+    width: 30px !important;
+    min-width: 30px !important;
+    max-width: 30px !important;
+    left: 0 !important;
+    font-size: 10.5px !important;
+    padding: 4px 1px !important;
+    text-align: center !important;
+  }
+
+  .master-table .sticky-col-unit {
+    width: 130px !important;
+    min-width: 130px !important;
+    max-width: 130px !important;
+    left: 30px !important;
+    font-size: 11px !important;
+    padding: 4px 5px !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    box-shadow: 3px 0 6px -2px rgba(0, 0, 0, 0.18) !important;
+  }
+
+  /* DO NOT freeze Total/Deadline column on mobile: allow it to scroll freely */
+  .master-table .sticky-col-total,
+  .master-table thead .sticky-col-total {
+    position: static !important;
+    width: 78px !important;
+    min-width: 78px !important;
+    max-width: 78px !important;
+    font-size: 12px !important;
+    box-shadow: none !important;
+    z-index: 1 !important;
+  }
+
+  /* Criteria columns size on mobile */
+  .master-table tr.row-banner th {
+    font-size: 12px !important;
+    padding: 6px 4px !important;
+  }
+  .master-table tr.row-titles th {
+    font-size: 10.5px !important;
+    min-width: 80px !important;
+    max-width: 110px !important;
+    padding: 4px 3px !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+  }
+  .master-table tr.row-points th {
+    font-size: 9.5px !important;
+    padding: 2px 3px !important;
+  }
+  .master-table tr.row-cols th {
+    font-size: 10px !important;
+    padding: 2px 3px !important;
+  }
+
+  .master-table th,
+  .master-table td,
+  .score-cell,
+  .score-input {
+    touch-action: pan-x pan-y !important;
+  }
+
+  /* Mobile scroll hint indicator */
+  .mobile-scroll-hint {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 5px 8px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    border: 1px dashed #7dd3fc;
+    animation: pulseHint 2s infinite;
+  }
+
+  @keyframes pulseHint {
+    0%, 100% { opacity: 0.95; }
+    50% { opacity: 0.7; }
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-scroll-hint {
+    display: none !important;
+  }
 }
