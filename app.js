@@ -883,8 +883,12 @@ function renderHeader() {
           </select>
         ` : ''}
 
-        <button class="btn btn-success btn-sm" onclick="exportToExcelClient()" title="Tải bảng tổng hợp Excel chuẩn">
+        <button class="btn btn-success btn-sm" onclick="exportToExcelClient()" title="Tải bảng tổng hợp Excel chuẩn về máy">
           📊 Xuất Excel (.xlsx)
+        </button>
+
+        <button class="btn btn-primary btn-sm" onclick="saveExcelToGoogleDrive()" title="Tự động xuất và lưu file Excel vào đúng thư mục Tháng trên Google Drive" style="background:#0284c7; border-color:#0284c7; font-weight:700;">
+          ☁️ Lưu Excel Vào Drive
         </button>
 
         <button class="btn btn-outline btn-sm" onclick="handleLogout()" style="background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.3);">
@@ -958,6 +962,123 @@ window.exportToExcelClient = function () {
   XLSX.writeFile(wb, fileName);
   showToast(`Đã xuất file Excel: <b>${fileName}</b>`, 'success');
 };
+
+window.saveExcelToGoogleDrive = async function () {
+  if (typeof XLSX === 'undefined') {
+    showToast('Lỗi: Thư viện XLSX chưa tải xong', 'error');
+    return;
+  }
+
+  const gdriveUrl = getGoogleDriveScriptUrl();
+  if (!gdriveUrl) {
+    showToast('Chưa cấu hình đường dẫn Google Apps Script Web App!', 'error');
+    return;
+  }
+
+  showToast('Đang tạo file Excel chuẩn và đồng bộ lên Google Drive...', 'info');
+
+  const wb = XLSX.utils.book_new();
+  const activeUnits = state.units.filter((u) => Number(u.is_active) === 1);
+  const criteria = state.criteria;
+
+  // Sheet 1: BANG TONG HOP
+  const row0 = [state.settings.header_title || 'BỘ TIÊU CHÍ ĐOÀN CẤP CƠ SỞ NĂM 2026'];
+  const row1 = ['ĐƠN VỊ', 'TỔNG ĐIỂM', ...criteria.map((c) => c.title)];
+  const row2 = ['', '', ...criteria.map((c) => c.points_text)];
+  const row3 = ['Cột 1', 'Cột 2', ...criteria.map((c) => c.col_label)];
+
+  const sheet1Rows = [row0, row1, row2, row3];
+  activeUnits.forEach((u) => {
+    const total = getUnitTotalScore(u.id);
+    const r = [u.unit_name, total];
+    criteria.forEach((c) => {
+      const sc = getScoreObj(u.id, c.id);
+      r.push(sc && sc.score !== null && sc.score !== '' ? Number(sc.score) : '');
+    });
+    sheet1Rows.push(r);
+  });
+  const ws1 = XLSX.utils.aoa_to_sheet(sheet1Rows);
+  XLSX.utils.book_append_sheet(wb, ws1, 'BANG TONG HOP');
+
+  // Sheet 2: XEP HANG & THANG
+  const rankings = getRankings();
+  const monthGroups = getRankingMonthGroups();
+  const totalReports = state.criteria.filter((c) => Number(c.is_report) === 1).length;
+
+  const s2Header = [
+    'HẠNG',
+    'MÃ ĐV',
+    'TÊN ĐƠN VỊ',
+    'TỔNG ĐIỂM',
+    'BC ĐÚNG HẠN',
+    ...monthGroups.map((mg) => mg.label),
+  ];
+  const sheet2Rows = [s2Header];
+  rankings.forEach((item) => {
+    const u = item.unit;
+    const r = [item.rank, u.unit_code, u.unit_name, item.total, `${item.reportsDone} / ${totalReports || 17}`];
+    monthGroups.forEach((mg) => {
+      r.push(getUnitMonthScore(u.id, mg.key));
+    });
+    sheet2Rows.push(r);
+  });
+  const ws2 = XLSX.utils.aoa_to_sheet(sheet2Rows);
+  XLSX.utils.book_append_sheet(wb, ws2, 'XEP HANG & THANG');
+
+  // Sheet 3: THEO DOI NOP BAO CAO
+  const reportCrit = state.criteria.filter((c) => Number(c.is_report) === 1);
+  const s3Header = ['STT', 'MÃ ĐV', 'TÊN ĐƠN VỊ CƠ SỞ', ...reportCrit.map((c) => c.title)];
+  const sheet3Rows = [s3Header];
+  activeUnits.forEach((u, idx) => {
+    const r = [idx + 1, u.unit_code, u.unit_name];
+    reportCrit.forEach((c) => {
+      const sc = getScoreObj(u.id, c.id);
+      if (sc && sc.score !== null && Number(sc.score) > 0) {
+        r.push(`Đã nộp (${sc.submitted_date || 'Đúng hạn'})`);
+      } else if (sc && sc.report_content) {
+        r.push('Đã nộp (Chờ duyệt)');
+      } else {
+        r.push('Chưa nộp');
+      }
+    });
+    sheet3Rows.push(r);
+  });
+  const ws3 = XLSX.utils.aoa_to_sheet(sheet3Rows);
+  XLSX.utils.book_append_sheet(wb, ws3, 'THEO DOI NOP BAO CAO');
+
+  const b64 = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  const d = pad(now.getDate());
+  const m = pad(now.getMonth() + 1);
+  const y = now.getFullYear();
+  const h = pad(now.getHours());
+  const min = pad(now.getMinutes());
+  const fileName = `TongHop_Diem_Ngay_${d}_Thang_${m}_${y}_luc_${h}h${min}.xlsx`;
+
+  try {
+    const res = await fetch(gdriveUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'save_excel',
+        fileData: b64,
+        fileName: fileName,
+        monthLabel: `Tháng ${m}-${y}`
+      }),
+      redirect: 'follow',
+    });
+    const data = await res.json();
+    if (data && data.status === 'success') {
+      showToast(`✅ Đã lưu file Excel vào Google Drive thành công!<br>📁 Thư mục: <b>BÁO CÁO TỔNG HỢP EXCEL ĐỊNH KỲ / ${data.folderName || ('Tháng ' + m + '-' + y)}</b><br><a href="${data.fileUrl}" target="_blank" style="color:#fde047; text-decoration:underline; font-weight:700;">[🔗 Nhấn vào đây để mở trên Google Drive]</a>`, 'success');
+    } else {
+      showToast('Lỗi lưu Google Drive: ' + (data ? data.message : 'Không rõ nguyên nhân'), 'error');
+    }
+  } catch (err) {
+    showToast('Lỗi gửi file lên Google Drive: ' + err.message, 'error');
+  }
+};
+
 
 function renderNavTabs() {
   const isAdmin = state.user && state.user.role === 'admin';
@@ -3188,7 +3309,10 @@ function renderRankingTab() {
         <div class="panel-title">
           🏆 BẢNG XẾP HẠNG THI ĐUA & TỔNG HỢP ĐIỂM THEO THÁNG NĂM 2026 (${rankings.length} ĐƠN VỊ)
         </div>
-        <button class="btn btn-success btn-sm" onclick="exportToExcelClient()">📊 Xuất Bảng Xếp Hạng Ra Excel</button>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button class="btn btn-success btn-sm" onclick="exportToExcelClient()">📊 Xuất Bảng Xếp Hạng Ra Excel</button>
+          <button class="btn btn-primary btn-sm" onclick="saveExcelToGoogleDrive()" style="background:#0284c7; border-color:#0284c7; font-weight:700;">☁️ Lưu Bảng Điểm Lên Google Drive</button>
+        </div>
       </div>
       <div class="panel-body" style="padding:0; overflow-x:auto;">
         <table class="data-table">
