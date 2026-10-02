@@ -359,6 +359,48 @@ function getScoreObj(unitId, criterionId) {
   return state.scoresMap[`${unitId}_${criterionId}`] || null;
 }
 
+function getRankingMonthGroups() {
+  const groups = [];
+  // 12 Tháng chuẩn năm 2026
+  for (let m = 1; m <= 12; m++) {
+    groups.push({ key: m, label: `Tháng ${m}` });
+  }
+  // Nhóm 13: Thường xuyên & Cuối năm
+  groups.push({ key: 13, label: 'Cuối năm / TX' });
+
+  // Nhóm chuyên đề chuẩn (14, 15, 16) nếu có tiêu chí
+  const specialGroups = [
+    { key: 14, label: 'Tháng TN (T3)' },
+    { key: 15, label: 'Chiến dịch Hè' },
+    { key: 16, label: 'Đợt 26/3' },
+  ];
+  specialGroups.forEach(sg => {
+    if (state.criteria.some(c => Number(c.month_group) === sg.key)) {
+      groups.push(sg);
+    }
+  });
+
+  // Các nhóm kỳ hạn / tháng tự tạo của Admin (> 16)
+  const knownKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+  const customKeys = new Set();
+  (state.criteria || []).forEach(c => {
+    const k = Number(c.month_group);
+    if (!knownKeys.includes(k) && k > 0) customKeys.add(k);
+  });
+  if (state.monthLabels) {
+    Object.keys(state.monthLabels).forEach(k => {
+      const numK = Number(k);
+      if (!knownKeys.includes(numK) && numK > 0) customKeys.add(numK);
+    });
+  }
+  Array.from(customKeys).sort((a, b) => a - b).forEach(k => {
+    const customLabel = (state.monthLabels && state.monthLabels[String(k)]) || `Kỳ ${k}`;
+    groups.push({ key: k, label: customLabel });
+  });
+
+  return groups;
+}
+
 function getUnitTotalScore(unitId) {
   let sum = 0;
   for (const c of state.criteria) {
@@ -836,30 +878,24 @@ window.exportToExcelClient = function () {
 
   // Sheet 2: Xếp hạng & Tháng
   const rankings = getRankings();
+  const monthGroups = getRankingMonthGroups();
+  const totalReports = state.criteria.filter((c) => Number(c.is_report) === 1).length;
+
   const s2Header = [
     'HẠNG',
     'MÃ ĐV',
     'TÊN ĐƠN VỊ',
     'TỔNG ĐIỂM',
     'BC ĐÚNG HẠN',
-    'Tháng 1',
-    'Tháng 2',
-    'Tháng 3',
-    'Tháng 4',
-    'Tháng 5',
-    'Tháng 6',
-    'Tháng 7',
-    'Tháng 8',
-    'Tháng 9',
-    'Cuối năm & TX',
+    ...monthGroups.map((mg) => mg.label),
   ];
   const sheet2Rows = [s2Header];
   rankings.forEach((item) => {
     const u = item.unit;
-    const r = [item.rank, u.unit_code, u.unit_name, item.total, item.reportsDone];
-    for (let m = 1; m <= 10; m++) {
-      r.push(getUnitMonthScore(u.id, m));
-    }
+    const r = [item.rank, u.unit_code, u.unit_name, item.total, `${item.reportsDone} / ${totalReports || 17}`];
+    monthGroups.forEach((mg) => {
+      r.push(getUnitMonthScore(u.id, mg.key));
+    });
     sheet2Rows.push(r);
   });
   const ws2 = XLSX.utils.aoa_to_sheet(sheet2Rows);
@@ -3082,6 +3118,9 @@ window.saveDateSettings = async function () {
    ========================================================================= */
 function renderRankingTab() {
   const rankings = getRankings();
+  const monthGroups = getRankingMonthGroups();
+  const totalReports = state.criteria.filter((c) => Number(c.is_report) === 1).length;
+
   return `
     <div class="panel">
       <div class="panel-header">
@@ -3096,13 +3135,13 @@ function renderRankingTab() {
             <tr>
               <th style="width:60px; text-align:center;">Hạng</th>
               <th style="width:80px; text-align:center;">Mã ĐV</th>
-              <th>Tên Đơn Vị Cơ Sở</th>
+              <th style="min-width:220px;">Tên Đơn Vị Cơ Sở</th>
               <th style="width:115px; text-align:center; background:#fef9c3;">TỔNG ĐIỂM</th>
-              <th style="width:120px; text-align:center;">BC Đúng Hạn</th>
-              ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+              <th style="width:115px; text-align:center;">BC Đúng Hạn</th>
+              ${monthGroups
                 .map(
-                  (m) =>
-                    `<th style="text-align:center; font-size:12px;">${m < 10 ? `Tháng ${m}` : 'Cuối năm / TX'}</th>`
+                  (mg) =>
+                    `<th style="text-align:center; font-size:12px; white-space:nowrap; min-width:80px;">${escapeHtml(mg.label)}</th>`
                 )
                 .join('')}
             </tr>
@@ -3128,11 +3167,11 @@ function renderRankingTab() {
                     ${formatScore(item.total) || '0'}
                   </td>
                   <td style="text-align:center;">
-                    <span class="badge badge-success">${item.reportsDone} / 17</span>
+                    <span class="badge badge-success">${item.reportsDone} / ${totalReports || 17}</span>
                   </td>
-                  ${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-                    .map((m) => {
-                      const ms = getUnitMonthScore(u.id, m);
+                  ${monthGroups
+                    .map((mg) => {
+                      const ms = getUnitMonthScore(u.id, mg.key);
                       return `<td style="text-align:center; font-weight:600; color:${ms > 0 ? '#0f172a' : ms < 0 ? '#dc2626' : '#cbd5e1'};">${
                         ms !== 0 ? formatScore(ms) : '-'
                       }</td>`;
