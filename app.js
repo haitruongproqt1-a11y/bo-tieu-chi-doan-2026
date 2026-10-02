@@ -658,6 +658,12 @@ function renderLoginView() {
             <button type="submit" class="btn btn-primary" style="width: 100%; padding: 11px; font-size: 14.5px; font-weight: 700; margin-top: 8px;">
               Đăng Nhập Hệ Thống Online
             </button>
+
+            <div style="text-align: center; margin-top: 14px; padding-top: 12px; border-top: 1px dashed #cbd5e1;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="showPWAInstallGuide()" style="border-radius: 20px; font-size: 12.5px; padding: 6px 16px; font-weight: 700; color: #0052cc; border-color: #93c5fd; background: #eff6ff; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+                📲 Cài Đặt Ứng Dụng Vào Điện Thoại (iOS & Android)
+              </button>
+            </div>
           </form>
         </div>
       </div>
@@ -889,6 +895,10 @@ function renderHeader() {
 
         <button class="btn btn-primary btn-sm" onclick="saveExcelToGoogleDrive()" title="Tự động xuất và lưu file Excel vào đúng thư mục Tháng trên Google Drive" style="background:#0284c7; border-color:#0284c7; font-weight:700;">
           ☁️ Lưu Excel Vào Drive
+        </button>
+
+        <button class="btn btn-sm" onclick="showPWAInstallGuide()" title="Cài đặt ứng dụng vào điện thoại" style="background: rgba(255,255,255,0.2); color:#fff; border: 1px solid rgba(255,255,255,0.4); font-size: 11.5px; padding: 5px 10px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+          📲 Cài App
         </button>
 
         <button class="btn btn-outline btn-sm" onclick="handleLogout()" style="background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.3);">
@@ -4245,4 +4255,85 @@ window.deleteMonthGroup = async function (groupNum) {
     showToast(`Đã xóa nhóm "${groupName}" thành công!`, 'success');
     openManageMonthGroupsModal();
   }
+};
+
+
+// =========================================================================
+// PWA MOBILE APP INSTALLATION HANDLERS (iOS & Android)
+// =========================================================================
+window.deferredPWAInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  window.deferredPWAInstallPrompt = e;
+  const btn = document.getElementById('btn-pwa-install-mobile');
+  if (btn) btn.style.display = 'inline-flex';
+});
+
+window.showPWAInstallGuide = function () {
+  if (window.deferredPWAInstallPrompt) {
+    window.deferredPWAInstallPrompt.prompt();
+    window.deferredPWAInstallPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        showToast('Đang cài đặt ứng dụng vào màn hình chính của bạn...', 'success');
+      }
+      window.deferredPWAInstallPrompt = null;
+    });
+    return;
+  }
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+  if (isStandalone) {
+    showToast('Ứng dụng đã được cài đặt và đang chạy ở chế độ Màn hình chính!', 'info');
+    return;
+  }
+
+  const modalRoot = document.getElementById('modal-root');
+  modalRoot.innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+      <div class="modal-box" style="max-width:480px; border-radius:12px; overflow:hidden;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #0052cc, #0284c7); color: #fff;">
+          <span style="font-weight:700; font-size:15px;">📲 Cài Đặt Ứng Dụng Điện Thoại (iOS & Android)</span>
+          <button class="btn btn-sm" onclick="closeModal()" style="color:#fff; background:transparent; border:none; font-size:16px;">✕</button>
+        </div>
+        <div class="modal-body" style="padding:18px; font-size:13.5px; line-height:1.6; color:#1e293b;">
+          <div style="text-align:center; margin-bottom:14px;">
+            <img src="./apple-touch-icon.png" style="width:72px; height:72px; border-radius:16px; box-shadow:0 4px 10px rgba(0,0,0,0.15); margin-bottom:8px;" />
+            <div style="font-weight:800; font-size:15px; color:#0052cc;">Bộ Tiêu Chí Đoàn 2026</div>
+            <div style="font-size:12px; color:#64748b;">Cài trực tiếp ra màn hình chính, mở mượt mà toàn màn hình như App tải từ Store</div>
+          </div>
+
+          ${isIOS ? `
+            <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:12px; margin-bottom:12px;">
+              <div style="font-weight:700; color:#166534; margin-bottom:6px;">🍏 Dành cho iPhone / iPad (Trình duyệt Safari):</div>
+              <ol style="margin:0; padding-left:18px; color:#1e293b;">
+                <li>Bấm vào biểu tượng <b>Chia sẻ</b> 📤 (hình vuông có mũi tên hướng lên) ở thanh dưới cùng Safari.</li>
+                <li>Cuộn xuống danh sách và chọn <b>"Thêm vào Màn hình chính"</b> (<i>Add to Home Screen ➕</i>).</li>
+                <li>Bấm <b>"Thêm"</b> (<i>Add</i>) ở góc trên bên phải.</li>
+              </ol>
+            </div>
+          ` : `
+            <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:12px; margin-bottom:12px;">
+              <div style="font-weight:700; color:#1e40af; margin-bottom:6px;">🤖 Dành cho Android (Samsung, Oppo, Xiaomi, Cốc Cốc...):</div>
+              <ol style="margin:0; padding-left:18px; color:#1e293b;">
+                <li>Mở liên kết bằng trình duyệt <b>Google Chrome</b> hoặc <b>Cốc Cốc</b>.</li>
+                <li>Bấm vào biểu tượng <b>3 dấu chấm ⋮</b> ở góc trên bên phải.</li>
+                <li>Chọn <b>"Cài đặt ứng dụng"</b> hoặc <b>"Thêm vào Màn hình chính"</b> (<i>Install app</i>).</li>
+                <li>Bấm <b>Cài đặt</b> để biểu tượng xuất hiện trên màn hình điện thoại.</li>
+              </ol>
+            </div>
+
+            <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px; font-size:12.5px;">
+              <div style="font-weight:700; color:#166534;">🍏 Nếu bạn dùng iPhone:</div>
+              <div>Mở Safari -> Bấm nút Chia sẻ 📤 -> Chọn <b>"Thêm vào MH chính"</b>.</div>
+            </div>
+          `}
+        </div>
+        <div class="modal-footer" style="background:#f8fafc; padding:10px 18px; text-align:right;">
+          <button class="btn btn-primary" onclick="closeModal()" style="font-weight:700; padding:6px 20px;">Đã Hiểu</button>
+        </div>
+      </div>
+    </div>
+  `;
 };
