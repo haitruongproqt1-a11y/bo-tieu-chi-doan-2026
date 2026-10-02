@@ -28,6 +28,9 @@ function _getCloudToken() {
 }
 
 const state = {
+  mobileViewMode: 'cards', // 'cards' | 'table'
+  mobileExpandedUnit: null,
+  mobileSearch: '',
   user: null,
   settings: {},
   units: [],
@@ -1234,8 +1237,27 @@ function renderMasterTableTab() {
 
   const headerTitle = state.settings.header_title || 'BỘ TIÊU CHÍ ĐOÀN CẤP CƠ SỞ NĂM 2026';
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+
+  if (isMobile && state.mobileViewMode === 'cards') {
+    return renderMasterMobileCardsView(activeUnits, filteredCriteria, isAdmin, monthPills, headerTitle);
+  }
+
   return `
-    
+    ${isMobile ? `
+      <div class="mobile-view-toggle-bar">
+        <button class="mobile-toggle-btn active" onclick="setMobileViewMode('cards')">
+          📱 Chế Độ Thẻ (Siêu Rõ)
+        </button>
+        <button class="mobile-toggle-btn" onclick="setMobileViewMode('table')">
+          📊 Chế Độ Bảng Kẻ Ô
+        </button>
+      </div>
+      <div class="table-scroll-controls">
+        <button class="btn-scroll-step" onclick="scrollTableHorizontally('master-spreadsheet-wrapper', -250)">◀ Cuộn Sang Trái</button>
+        <button class="btn-scroll-step" onclick="scrollTableHorizontally('master-spreadsheet-wrapper', 250)">Cuộn Sang Phải ▶</button>
+      </div>
+    ` : ''}
 
       <div class="filter-bar">
         <div class="month-pills">
@@ -2380,7 +2402,11 @@ function renderAdminReportsTab() {
         </div>
       </div>
       <div class="mobile-scroll-hint">👉 Vuốt ngón tay sang trái / phải để xem các kỳ báo cáo 👈</div>
-      <div class="spreadsheet-wrapper" style="max-height: 450px;">
+      <div class="table-scroll-controls">
+        <button class="btn-scroll-step" onclick="scrollTableHorizontally('reports-spreadsheet-wrapper', -250)">◀ Cuộn Sang Trái</button>
+        <button class="btn-scroll-step" onclick="scrollTableHorizontally('reports-spreadsheet-wrapper', 250)">Cuộn Sang Phải ▶</button>
+      </div>
+      <div class="spreadsheet-wrapper" id="reports-spreadsheet-wrapper" style="max-height: 450px;">
         <table class="master-table">
           <thead>
             <tr class="row-titles">
@@ -4339,4 +4365,26 @@ window.showPWAInstallGuide = function () {
       </div>
     </div>
   `;
+};
+
+
+window.setMobileViewMode = function (mode) {
+  state.mobileViewMode = mode;
+  renderApp();
+};
+
+window.toggleMobileUnitExpand = function (unitId) {
+  if (state.mobileExpandedUnit === unitId) {
+    state.mobileExpandedUnit = null;
+  } else {
+    state.mobileExpandedUnit = unitId;
+  }
+  renderApp();
+};
+
+window.scrollTableHorizontally = function (wrapperId, px) {
+  const el = document.getElementById(wrapperId);
+  if (el) {
+    el.scrollBy({ left: px, behavior: 'smooth' });
+  }
 };
