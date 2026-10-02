@@ -1141,22 +1141,27 @@ function renderMasterTableTab() {
 
 function renderMasterScoreCell(unit, crit, isAdmin) {
   const sc = getScoreObj(unit.id, crit.id);
-  const val = sc && sc.score !== null && sc.score !== undefined ? sc.score : '';
+  const val = sc && sc.score !== null && sc.score !== undefined && sc.score !== '' ? sc.score : '';
   const numVal = val !== '' ? Number(val) : null;
   const colorClass = numVal !== null ? (numVal < 0 ? 'neg-score' : 'pos-score') : '';
 
-  const hasSubmission =
-    sc &&
-    ((sc.report_content && sc.report_content !== '') ||
-      (sc.evidence_link && sc.evidence_link !== '') ||
-      (sc.file_path && sc.file_path !== '') ||
-      sc.updated_by === 'unit');
+  // Show green dot for ALL cells that have points (including just entered) OR have submission content
+  const hasScore = numVal !== null && val !== '';
+  const hasContent = sc && Boolean(
+    (sc.report_content && sc.report_content.trim() !== '') ||
+    (sc.evidence_link && sc.evidence_link.trim() !== '') ||
+    (sc.file_path && sc.file_path.trim() !== '') ||
+    sc.updated_by === 'unit'
+  );
 
-  const dotHtml = hasSubmission
+  const shouldShowDot = hasScore || hasContent;
+  const isLate = sc && Number(sc.is_on_time) === 0;
+
+  const dotHtml = shouldShowDot
     ? `<span
-        class="evidence-dot ${Number(sc.is_on_time) === 1 ? 'ontime' : 'late'}"
+        class="evidence-dot ${isLate ? 'late' : 'ontime'}"
         onclick="openSubmissionDetailModal(${unit.id}, ${crit.id})"
-        title="${Number(sc.is_on_time) === 1 ? 'Đơn vị nộp đúng hạn - Click xem chi tiết' : 'Đơn vị nộp quá hạn - Click xem chi tiết'}"
+        title="Xem chi tiết báo cáo, lý do cho điểm & minh chứng đính kèm"
       >📎</span>`
     : '';
 
@@ -1179,7 +1184,7 @@ function renderMasterScoreCell(unit, crit, isAdmin) {
     return `
       <td class="score-cell" id="cell-${unit.id}-${crit.id}">
         ${dotHtml}
-        <span class="score-input ${colorClass}" style="display:inline-flex; align-items:center; justify-content:center;">
+        <span class="score-input ${colorClass}" style="display:inline-block; padding:3px 2px;">
           ${formatScore(val)}
         </span>
       </td>
@@ -1215,7 +1220,7 @@ window.onAdminInlineScoreChange = async function (inputEl) {
   if (rawVal !== '' && isNaN(Number(rawVal))) {
     showToast('Vui lòng nhập số hợp lệ (VD: 5, 10, -5, 9.2) hoặc để trống!', 'error');
     const prev = getScoreObj(unitId, critId);
-    inputEl.value = prev ? formatScore(prev.score) : '';
+    inputEl.value = prev && prev.score !== null ? formatScore(prev.score) : '';
     return;
   }
 
@@ -1254,13 +1259,28 @@ window.onAdminInlineScoreChange = async function (inputEl) {
     if (numVal !== null) {
       inputEl.classList.add(numVal < 0 ? 'neg-score' : 'pos-score');
     }
-    const totalCell = document.getElementById(`total-cell-${unitId}`);
-    if (totalCell) {
-      totalCell.textContent = formatScore(getUnitTotalScore(unitId));
+
+    // Immediately update evidence-dot on the cell
+    const cellTd = document.getElementById(`cell-${unitId}-${critId}`);
+    if (cellTd) {
+      const existingDot = cellTd.querySelector('.evidence-dot');
+      if (numVal !== null && !existingDot) {
+        const dotSpan = document.createElement('span');
+        dotSpan.className = 'evidence-dot ontime';
+        dotSpan.onclick = () => openSubmissionDetailModal(unitId, critId);
+        dotSpan.title = 'Xem chi tiết báo cáo, lý do cho điểm & minh chứng đính kèm';
+        dotSpan.innerHTML = '📎';
+        cellTd.prepend(dotSpan);
+      } else if (numVal === null && existingDot) {
+        const sc = getScoreObj(unitId, critId);
+        const hasContent = sc && (sc.report_content || sc.evidence_link || sc.file_path);
+        if (!hasContent) existingDot.remove();
+      }
     }
-    showToast(`Đã lưu Online Cột ${critId + 2}: <b>${numVal === null ? 'Trống' : numVal + ' điểm'}</b>`, 'success');
-  } else {
-    showToast(res.error || 'Lỗi khi lưu điểm Online', 'error');
+
+    const totCell = document.getElementById(`total-cell-${unitId}`);
+    if (totCell) totCell.textContent = formatScore(getUnitTotalScore(unitId));
+    showToast('🟢 Đã cập nhật điểm thành công!', 'success');
   }
 };
 
@@ -1815,68 +1835,138 @@ window.closeModal = function () {
 window.openSubmissionDetailModal = function (unitId, criterionId) {
   const unit = state.units.find((u) => u.id === unitId);
   const crit = state.criteria.find((c) => c.id === criterionId);
-  const sc = getScoreObj(unitId, criterionId);
-  if (!unit || !crit || !sc) return;
+  if (!unit || !crit) return;
+
+  let sc = getScoreObj(unitId, criterionId);
+  if (!sc) {
+    sc = {
+      unit_id: unitId,
+      criterion_id: criterionId,
+      score: null,
+      self_score: null,
+      quantity: 1,
+      report_content: '',
+      evidence_link: '',
+      file_name: '',
+      file_path: '',
+      submitted_at: '',
+      submitted_date: '',
+      is_on_time: 1,
+      updated_by: 'admin',
+    };
+  }
 
   const isAdmin = state.user && state.user.role === 'admin';
   const modalRoot = document.getElementById('modal-root');
 
   modalRoot.innerHTML = `
     <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
-      <div class="modal-box">
-        <div class="modal-header">
-          <span>📎 Chi Tiết Báo Cáo & Minh Chứng (${escapeHtml(crit.col_label)})</span>
-          <button class="btn btn-sm btn-outline" onclick="closeModal()">✕</button>
+      <div class="modal-box" style="max-width: 640px;">
+        <div class="modal-header" style="background: #003d99; color: #fff;">
+          <span style="font-weight: 700;">📎 Chi Tiết Báo Cáo & Minh Chứng (${escapeHtml(crit.col_label)})</span>
+          <button class="btn btn-sm btn-outline" onclick="closeModal()" style="color:#fff; border-color:rgba(255,255,255,0.4);">✕</button>
         </div>
-        <div class="modal-body">
-          <div style="margin-bottom:12px;">
-            <div><b>Đơn vị:</b> ${escapeHtml(unit.unit_name)}</div>
-            <div><b>Tiêu chí:</b> ${escapeHtml(crit.title)}</div>
-            <div><b>Hạn nộp quy định:</b> ${formatDateVN(crit.deadline)}</div>
-            <div><b>Thời điểm đơn vị nộp:</b> ${escapeHtml(sc.submitted_at || 'Chưa rõ')} (Ngày xét: ${formatDateVN(sc.submitted_date)})</div>
+        <div class="modal-body" style="padding: 18px 20px;">
+          <div style="margin-bottom:14px; background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #e2e8f0;">
+            <div style="font-size:13.5px;"><b>Đơn vị:</b> <span style="color:#003d99; font-weight:700;">${escapeHtml(unit.unit_name)}</span></div>
+            <div style="font-size:13.5px; margin-top:2px;"><b>Tiêu chí:</b> ${escapeHtml(crit.title)}</div>
+            <div style="font-size:12.5px; color:#475569; margin-top:4px;">
+              <span>Hạn nộp quy định: <b>${formatDateVN(crit.deadline)}</b></span>
+              ${sc.submitted_at ? `<span style="margin-left:12px;">Thời điểm nộp: <b>${escapeHtml(sc.submitted_at)}</b></span>` : ''}
+            </div>
             <div style="margin-top:6px;">
-              <b>Trạng thái hạn nộp:</b>
+              <b>Trạng thái:</b>
               ${
                 Number(sc.is_on_time) === 1
-                  ? '<span class="badge badge-success">✅ Đúng hạn - Đã tự động cộng điểm</span>'
-                  : '<span class="badge badge-warning">⚠️ Quá hạn nộp (Không tự động cộng điểm)</span>'
+                  ? '<span class="badge badge-success">✅ Đúng hạn (Hợp lệ)</span>'
+                  : '<span class="badge badge-warning">⚠️ Quá hạn nộp</span>'
               }
             </div>
           </div>
 
-          <div style="padding:12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; margin-bottom:12px;">
-            <div><b>Điểm đơn vị kê khai:</b> ${formatScore(sc.self_score)} điểm (Số lượng: ${sc.quantity || 1})</div>
-            <div><b>Điểm chính thức đang ghi nhận:</b> <span style="font-size:15px; font-weight:800; color:#0052cc;">${
-              sc.score !== null && sc.score !== '' ? formatScore(sc.score) + ' điểm' : 'Chưa cộng điểm (0đ)'
-            }</span></div>
-            <div style="margin-top:8px;"><b>Nội dung báo cáo / Giải trình:</b></div>
-            <div style="padding:8px; background:#fff; border:1px solid #cbd5e1; border-radius:6px; margin-top:4px; min-height:48px; white-space:pre-wrap;">${
-              sc.report_content ? escapeHtml(sc.report_content) : '<i>(Không có ghi chú)</i>'
-            }</div>
+          <div style="padding:14px; background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; margin-bottom:14px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px dashed #e2e8f0; padding-bottom:8px;">
+              <div><b>Điểm đơn vị kê khai:</b> ${formatScore(sc.self_score)} điểm ${sc.quantity ? `(Số lượng: ${sc.quantity})` : ''}</div>
+              <div><b>Điểm chính thức:</b> <span style="font-size:16px; font-weight:800; color:#0052cc;">${
+                sc.score !== null && sc.score !== '' ? formatScore(sc.score) + ' điểm' : 'Chưa có điểm'
+              }</span></div>
+            </div>
 
-            ${
-              sc.evidence_link
-                ? `<div style="margin-top:8px;"><b>Link minh chứng:</b> <a href="${escapeHtml(sc.evidence_link)}" target="_blank">${escapeHtml(sc.evidence_link)}</a></div>`
-                : ''
-            }
-            ${
-              sc.file_path
-                ? `<div style="margin-top:8px;"><b>File báo cáo đính kèm:</b> <a href="${escapeHtml(sc.file_path)}" target="_blank" class="btn btn-sm btn-primary" style="margin-left:6px;">📥 Tải về: ${escapeHtml(sc.file_name)}</a></div>`
-                : ''
-            }
+            <!-- NỘI DUNG / GIẢI TRÌNH -->
+            <div class="form-group" style="margin-bottom:12px;">
+              <label style="font-weight:700; color:#0f172a;">📝 Nội dung báo cáo / Giải trình & Lý do được điểm:</label>
+              ${
+                isAdmin
+                  ? `<textarea id="modal-report-content" rows="3" placeholder="Nhập lý do cho điểm, nhận xét của Ban Thường vụ hoặc nội dung giải trình..." style="width:100%; padding:8px 10px; font-family:inherit; border-radius:6px; border:1px solid #cbd5e1; font-size:13px;">${escapeHtml(sc.report_content || '')}</textarea>`
+                  : `<div style="padding:8px 10px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:6px; min-height:48px; white-space:pre-wrap; font-size:13px;">${
+                      sc.report_content ? escapeHtml(sc.report_content) : '<i>(Không có ghi chú)</i>'
+                    }</div>`
+              }
+            </div>
+
+            <!-- LINK MINH CHỨNG -->
+            <div class="form-group" style="margin-bottom:12px;">
+              <label style="font-weight:700; color:#0f172a;">🔗 Link minh chứng (Google Drive / Fanpage / Cổng thông tin):</label>
+              ${
+                isAdmin
+                  ? `
+                  <input type="text" id="modal-evidence-link" value="${escapeHtml(sc.evidence_link || '')}" placeholder="https://drive.google.com/... hoặc link bài viết" style="width:100%; padding:7px 10px; border-radius:6px; border:1px solid #cbd5e1; font-size:13px;" />
+                  ${sc.evidence_link ? `<div style="margin-top:4px; font-size:12px;"><a href="${escapeHtml(sc.evidence_link)}" target="_blank" style="color:#0052cc; font-weight:700;">↗ Bấm xem liên kết minh chứng</a></div>` : ''}
+                `
+                  : sc.evidence_link
+                  ? `<div><a href="${escapeHtml(sc.evidence_link)}" target="_blank" style="color:#0052cc; font-weight:700;">${escapeHtml(sc.evidence_link)} ↗</a></div>`
+                  : '<div style="color:#64748b; font-size:12px;"><i>Chưa có link minh chứng</i></div>'
+              }
+            </div>
+
+            <!-- FILE BÁO CÁO ĐÍNH KÈM -->
+            <div class="form-group" style="margin-bottom:6px;">
+              <label style="font-weight:700; color:#0f172a;">📎 File báo cáo đính kèm:</label>
+              ${
+                sc.file_path
+                  ? `
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; background:#eff6ff; padding:8px 12px; border-radius:6px; border:1px solid #bfdbfe; margin-bottom:8px;">
+                  <span style="font-weight:700; color:#1e40af; overflow:hidden; text-overflow:ellipsis; max-width:320px;">📄 ${escapeHtml(sc.file_name || 'Tệp đính kèm')}</span>
+                  <div style="display:flex; gap:6px;">
+                    <a href="${escapeHtml(sc.file_path)}" target="_blank" class="btn btn-sm btn-outline" style="font-size:11.5px; padding:3px 8px;">Xem file</a>
+                    <a href="${escapeHtml(sc.file_path)}" download="${escapeHtml(sc.file_name || 'minh_chung')}" target="_blank" class="btn btn-sm btn-primary" style="font-size:11.5px; padding:3px 8px; font-weight:700;">📥 Tải về</a>
+                  </div>
+                </div>
+              `
+                  : '<div style="color:#64748b; font-size:12px; margin-bottom:6px;"><i>Chưa có file đính kèm</i></div>'
+              }
+
+              ${
+                isAdmin
+                  ? `
+                <div style="margin-top:6px; background:#f1f5f9; padding:8px 10px; border-radius:6px; border:1px dashed #94a3b8;">
+                  <label style="font-size:12px; font-weight:600; color:#334155; margin-bottom:4px; display:block;">
+                    ${sc.file_path ? '📤 Tải lên file mới để thay thế (nếu cần):' : '📤 Admin tải thêm file đính kèm cho ô này:'}
+                  </label>
+                  <input type="file" id="modal-admin-file" style="font-size:12px;" />
+                </div>
+              `
+                  : ''
+              }
+            </div>
           </div>
 
+          <!-- ADMIN ĐIỀU CHỈNH / PHÊ DUYỆT ĐIỂM -->
           ${
             isAdmin
               ? `
-            <div class="form-group">
-              <label>Admin điều chỉnh / phê duyệt điểm cho mục này:</label>
-              <div style="display:flex; gap:8px;">
-                <input type="number" step="0.01" id="admin-modal-score" value="${
-                  sc.score !== null && sc.score !== '' ? sc.score : sc.self_score || crit.default_score
-                }" />
-                <button class="btn btn-success" onclick="adminSaveScoreFromModal(${unit.id}, ${crit.id})">
-                  💾 Lưu Điểm Chính Thức
+            <div style="background:#fefce8; padding:12px; border-radius:8px; border:1px solid #fef08a;">
+              <label style="font-weight:700; color:#854d0e; display:block; margin-bottom:6px;">👑 Admin phê duyệt / điều chỉnh số điểm cho mục này:</label>
+              <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <input
+                  type="number"
+                  step="0.01"
+                  id="admin-modal-score"
+                  value="${sc.score !== null && sc.score !== '' ? sc.score : (sc.self_score || crit.default_score)}"
+                  style="max-width:130px; font-size:15px; font-weight:700; padding:6px 10px; border:2px solid #ca8a04; border-radius:6px;"
+                />
+                <button class="btn btn-success" id="btn-save-admin-detail" onclick="saveAdminSubmissionDetail(${unit.id}, ${crit.id})" style="font-weight:700; padding:7px 18px;">
+                  💾 Lưu Điểm & Toàn Bộ Chi Tiết
                 </button>
               </div>
             </div>
@@ -1884,7 +1974,7 @@ window.openSubmissionDetailModal = function (unitId, criterionId) {
               : ''
           }
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer" style="padding:10px 20px;">
           <button class="btn btn-outline" onclick="closeModal()">Đóng</button>
         </div>
       </div>
@@ -1892,29 +1982,86 @@ window.openSubmissionDetailModal = function (unitId, criterionId) {
   `;
 };
 
-window.adminSaveScoreFromModal = async function (unitId, critId) {
-  const val = document.getElementById('admin-modal-score').value.trim();
-  const numVal = val === '' ? null : Math.round(Number(val) * 100) / 100;
+window.saveAdminSubmissionDetail = async function (unitId, critId) {
+  const scoreInput = document.getElementById('admin-modal-score');
+  const contentInput = document.getElementById('modal-report-content');
+  const linkInput = document.getElementById('modal-evidence-link');
+  const fileInput = document.getElementById('modal-admin-file');
+  const btn = document.getElementById('btn-save-admin-detail');
+
+  const newScore = scoreInput ? (scoreInput.value.trim() === '' ? null : Number(scoreInput.value)) : null;
+  const newContent = contentInput ? contentInput.value.trim() : '';
+  const newLink = linkInput ? linkInput.value.trim() : '';
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = '⏳ Đang lưu...';
+  }
+
+  let uploadedName = '';
+  let uploadedUrl = '';
+  if (fileInput && fileInput.files && fileInput.files[0]) {
+    try {
+      showToast('Đang tải file đính kèm lên đám mây...', 'info');
+      const f = fileInput.files[0];
+      const b64 = await readFileAsDataURL(f);
+      const upRes = await uploadFileToCloud(b64, f.name, unitId, critId);
+      uploadedName = upRes.fileName;
+      uploadedUrl = upRes.fileUrl;
+    } catch (e) {
+      showToast('Lỗi khi tải file: ' + e.message, 'error');
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = '💾 Lưu Điểm & Toàn Bộ Chi Tiết';
+      }
+      return;
+    }
+  }
+
+  showToast('Đang lưu thông tin vào hệ thống Online...', 'info');
   const res = await mutateCloudDB((db) => {
     db.scores = db.scores || [];
     const idx = db.scores.findIndex((s) => s.unit_id === unitId && s.criterion_id === critId);
     if (idx >= 0) {
-      db.scores[idx].score = numVal;
+      if (newScore !== null) db.scores[idx].score = newScore;
+      db.scores[idx].report_content = newContent;
+      db.scores[idx].evidence_link = newLink;
+      if (uploadedUrl) {
+        db.scores[idx].file_name = uploadedName;
+        db.scores[idx].file_path = uploadedUrl;
+      }
       db.scores[idx].updated_by = 'admin';
-    } else if (numVal !== null) {
+      db.scores[idx].submitted_at = nowISO();
+    } else {
       db.scores.push({
         unit_id: unitId,
         criterion_id: critId,
-        score: numVal,
-        updated_by: 'admin',
+        score: newScore !== null ? newScore : 0,
+        quantity: 1,
+        self_score: newScore,
+        report_content: newContent,
+        evidence_link: newLink,
+        file_name: uploadedName,
+        file_path: uploadedUrl,
         submitted_at: nowISO(),
+        submitted_date: todayISO(),
+        is_on_time: 1,
+        updated_by: 'admin',
+        admin_note: '',
       });
     }
-  }, `Admin modal score U${unitId} C${critId}`);
+  }, `Admin updated detail U${unitId} C${critId}`);
+
   if (res.ok) {
     closeModal();
+    showToast('🎉 Đã lưu điểm, nội dung và minh chứng thành công!', 'success');
     renderApp();
-    showToast('Đã cập nhật điểm chính thức Online thành công!', 'success');
+  } else {
+    showToast('Lỗi khi lưu dữ liệu lên đám mây!', 'error');
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '💾 Lưu Điểm & Toàn Bộ Chi Tiết';
+    }
   }
 };
 
