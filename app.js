@@ -2005,7 +2005,7 @@ function renderAdminReportsTab() {
     <div class="panel">
       <div class="panel-header">
         <div class="panel-title">
-          📊 MA TRẬN THEO DÕI NỘP BÁO CÁO ĐỊNH KỲ CỦA ${activeUnits.length} ĐƠN VỊ (${reportCriteria.length} KỲ BÁO CÁO)
+          📊 THEO DÕI NỘP BÁO CÁO CỦA CÁC ĐƠN VỊ
         </div>
         <div style="font-size:12.5px; color:#475569;">
           <span class="badge badge-success">✅ Đã nộp đúng hạn (Có điểm)</span>
@@ -2459,6 +2459,7 @@ function renderAdminCriteriaTab() {
               <th style="width:70px; text-align:center;">Cột</th>
               <th style="width:140px;">Nhóm tháng</th>
               <th>Tên Tiêu Chí</th>
+              <th style="width:115px; text-align:center;">Phân loại</th>
               <th style="width:120px;">Mức điểm</th>
               <th style="width:70px; text-align:center;">Tối đa</th>
               <th style="width:115px; text-align:center;">Ngày mở nộp</th>
@@ -2475,6 +2476,12 @@ function renderAdminCriteriaTab() {
                 <td style="text-align:center; font-weight:700; color:#7c2d12;">${escapeHtml(c.col_label)}</td>
                 <td><span class="badge badge-info">${escapeHtml(c.month_label)}</span></td>
                 <td style="font-weight:600; line-height:1.4;">${escapeHtml(c.title)}</td>
+                <td style="text-align:center;">
+                  ${Number(c.is_report) === 1
+                    ? '<span class="badge badge-success" title="Hiển thị trong bảng Theo Dõi Báo Cáo">📋 Báo cáo</span>'
+                    : '<span class="badge" style="background:#f1f5f9; color:#475569;" title="Chỉ tính điểm hoạt động">🎯 Hoạt động</span>'
+                  }
+                </td>
                 <td style="font-size:12px; white-space:pre-line;">${escapeHtml(c.points_text || c.max_score + ' điểm')}</td>
                 <td style="text-align:center; font-weight:700; color:#0052cc;">${c.max_score}</td>
                 <td style="text-align:center; font-weight:600; color:#059669;">
@@ -2562,6 +2569,28 @@ window.openCriterionEditModal = function (critId) {
             </select>
           </div>
 
+          <div class="form-group" style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #cbd5e1; margin-bottom:14px;">
+            <label style="font-weight:700; color:#0f172a;">📌 Phân loại Tiêu chí / Báo cáo:</label>
+            <select id="new-crit-is-report" style="font-weight:600; font-size:13.5px; padding:6px 10px;">
+              <option value="0">🎯 Hoạt động / Phong trào (Không nằm trong bảng Theo dõi nộp báo cáo)</option>
+              <option value="1">📋 Báo cáo định kỳ (Tự động đưa vào bảng THEO DÕI NỘP BÁO CÁO CỦA CÁC ĐƠN VỊ)</option>
+            </select>
+            <small style="color:#64748b; margin-top:4px; display:block; font-size:12px;">
+              💡 Chọn <b>"Báo cáo định kỳ"</b> nếu đây là báo cáo cần theo dõi tiến độ nộp của các đơn vị. Nếu là tiêu chí chấm điểm hoạt động thông thường, hãy chọn <b>"Hoạt động / Phong trào"</b>.
+            </small>
+          </div>
+
+          <div class="form-group" style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #cbd5e1; margin-bottom:14px;">
+            <label style="font-weight:700; color:#0f172a;">📌 Phân loại Tiêu chí / Báo cáo:</label>
+            <select id="edit-crit-is-report" style="font-weight:600; font-size:13.5px; padding:6px 10px;">
+              <option value="0" ${Number(c.is_report) !== 1 ? 'selected' : ''}>🎯 Hoạt động / Phong trào (Không nằm trong bảng Theo dõi nộp báo cáo)</option>
+              <option value="1" ${Number(c.is_report) === 1 ? 'selected' : ''}>📋 Báo cáo định kỳ (Tự động đưa vào bảng THEO DÕI NỘP BÁO CÁO CỦA CÁC ĐƠN VỊ)</option>
+            </select>
+            <small style="color:#64748b; margin-top:4px; display:block; font-size:12px;">
+              💡 Chọn <b>"Báo cáo định kỳ"</b> nếu muốn tiêu chí xuất hiện thành 1 cột trong bảng <i>Theo Dõi Nộp Báo Cáo Của Các Đơn Vị</i>.
+            </small>
+          </div>
+
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
             <div class="form-group">
               <label>Ngày bắt đầu nộp:</label>
@@ -2601,6 +2630,7 @@ window.openCriterionEditModal = function (critId) {
 window.saveCriterionEdit = async function (critId) {
   const title = document.getElementById('edit-crit-title').value.trim();
   const mGroup = Number(document.getElementById('edit-crit-month').value);
+  const isReport = Number(document.getElementById('edit-crit-is-report') ? document.getElementById('edit-crit-is-report').value : 0);
   const startDate = document.getElementById('edit-crit-start-date').value || '2026-01-01';
   const deadline = document.getElementById('edit-crit-deadline').value;
   const pointsText = document.getElementById('edit-crit-points').value.trim();
@@ -2626,6 +2656,7 @@ window.saveCriterionEdit = async function (critId) {
     c.month_label = (db.month_labels && db.month_labels[String(mGroup)]) || defaultMonthLabels[String(mGroup)] || c.month_label;
     c.start_date = startDate;
     c.deadline = deadline;
+    c.is_report = isReport;
     c.points_text = pointsText;
     c.default_score = maxS;
     c.max_score = maxS;
@@ -2686,6 +2717,17 @@ window.openCriterionCreateModal = function () {
             <input type="text" id="new-crit-custom-group" placeholder="VD: Quý 1/2026, Đợt thi đua 26/3, Chiến dịch Hè..." />
           </div>
 
+          <div class="form-group" style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid #cbd5e1; margin-bottom:14px;">
+            <label style="font-weight:700; color:#0f172a;">📌 Phân loại Tiêu chí / Báo cáo:</label>
+            <select id="new-crit-is-report" style="font-weight:600; font-size:13.5px; padding:6px 10px;">
+              <option value="0">🎯 Hoạt động / Phong trào (Không nằm trong bảng Theo dõi nộp báo cáo)</option>
+              <option value="1">📋 Báo cáo định kỳ (Tự động đưa vào bảng THEO DÕI NỘP BÁO CÁO CỦA CÁC ĐƠN VỊ)</option>
+            </select>
+            <small style="color:#64748b; margin-top:4px; display:block; font-size:12px;">
+              💡 Chọn <b>"Báo cáo định kỳ"</b> nếu đây là báo cáo cần theo dõi tiến độ nộp của các đơn vị. Nếu là tiêu chí chấm điểm hoạt động thông thường, hãy chọn <b>"Hoạt động / Phong trào"</b>.
+            </small>
+          </div>
+
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
             <div class="form-group">
               <label>Ngày bắt đầu nộp:</label>
@@ -2739,6 +2781,7 @@ window.saveNewCriterion = async function () {
 
   const startDate = document.getElementById('new-crit-start-date').value || '2026-01-01';
   const deadline = document.getElementById('new-crit-deadline').value || '2026-10-20';
+  const isReport = Number(document.getElementById('new-crit-is-report') ? document.getElementById('new-crit-is-report').value : 0);
   const pointsText = document.getElementById('new-crit-points').value.trim() || '(5 điểm)';
   const maxS = Number(document.getElementById('new-crit-max').value || 5);
 
@@ -2799,7 +2842,7 @@ window.saveNewCriterion = async function () {
       unit_step_score: maxS,
       unit_step_label: 'hoạt động',
       allow_unit_submit: 1,
-      is_report: 0,
+      is_report: isReport,
       lock_override: 0,
     };
 
